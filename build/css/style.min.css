@@ -1,0 +1,79 @@
+.gridster {
+  width: 960px;
+  margin: 0 auto;
+}
+.gridster.deleteModeEnabled .gs-w .delete {
+  display: block;
+}
+.gridster .preview-holder {
+  border: none!important;
+  border-radius: 0!important;
+  background: rgba(255,255,255,.6)!important;
+  list-style: none;
+}
+.gridster .gs-w {
+  background: #FFF;
+  cursor: pointer;
+  box-shadow: 0 0 5px rgba(0,0,0,0.3);
+  list-style: none;
+}
+.gridster .gs-w .delete {
+  display: none;
+}
+.gridster .player {
+  box-shadow: 3px 3px 5px rgba(0,0,0,0.3);
+}
+
+/* Effect 3: Push from Left*/
+.st-effect-3-left.st-menu-open .st-pusher {
+  -webkit-transform: translate(300px, 0);
+          transform: translate(300px, 0);
+}
+
+.st-effect-3-left.st-menu {
+  -webkit-transform: translate(-100%, 0);
+          transform: translate(-100%, 0);
+}
+
+.st-effect-3-left.st-menu-open .st-effect-3-left.st-menu {
+  visibility: visible;
+  -webkit-transition: -webkit-transform 0.5s;
+          transition: transform 0.5s;
+}
+
+.st-effect-3-left.st-menu::after {
+  display: none;
+}
+
+/* Effect 3: Push from right */
+/*
+.st-effect-3-right.st-menu-open .st-pusher {
+  transform: translate(-300px, 0);
+}
+*/
+
+.st-effect-3-right.st-menu {
+  -webkit-transform: translate(100%, 0);
+          transform: translate(100%, 0);
+  left: auto;
+  right: 0;
+}
+
+.st-effect-3-right.st-menu-open .st-effect-3-right.st-menu {
+  visibility: visible;
+  -webkit-transition: -webkit-transform 0.5s;
+          transition: transform 0.5s;
+  -webkit-transform: translate(0, 0);
+          transform: translate(0, 0);
+}
+
+.st-effect-3-right.st-menu::after {
+  display: none;
+}
+
+
+.st-content {
+  background-color: #3C87C7;
+}
+
+

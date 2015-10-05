@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="/favicon.ico">
+
+    <title>CSS Grid Gen</title>
+
+    <!-- Fonts -->
+
+    <!-- CSS Libraries -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/normalize/3.0.3/normalize.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+    <link href="/lib/SidebarTransitions/css/component.css" rel="stylesheet">
+    <link href="/lib/gridster.js/dist/jquery.gridster.css" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link href="/build/css/style.min.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <!-- http://tympanus.net/codrops/2013/08/28/transitions-for-off-canvas-navigations/ -->
+    <div id="st-container" class="st-container">
+
+      <div class="st-menu st-effect-3-right" id="editCellMenu">
+      </div>
+
+      <!-- content push wrapper -->
+      <div class="st-pusher">
+        <nav class="st-menu st-effect-3-left" id="menu-3-left">
+          <h2 class="icon icon-lab">Sidebar</h2>
+          <ul>
+            <li><a class="icon icon-data" href="#">Data Management</a></li>
+            <li><a class="icon icon-location" href="#">Location</a></li>
+            <li><a class="icon icon-study" href="#">Study</a></li>
+            <li><a class="icon icon-photo" href="#">Collections</a></li>
+            <li><a class="icon icon-wallet" href="#">Credits</a></li>
+          </ul>
+        </nav>
+
+        <div class="st-content"><!-- this is the wrapper for the content -->
+          <div class="st-content-inner"><!-- extra div for emulating position:fixed of the menu -->
+            <h1>CSS Grid Gen!</h1>
+            <button class="st-trigger-effect" data-effect="st-effect-3-left">Push from Left</button>
+            <button class="st-trigger-effect" data-effect="st-effect-3-right">Slide over from Right</button>
+            <br>
+            <button id="addCell">Add Cell</button>
+            <button id="serializeGrid">Serialize Grid (log)</button>
+            <button id="toggleDeleteMode">Toggle Delete Mode</button>
+            <button id="export">Export</button>
+
+
+            <div class="gridster">
+              <ul>
+                <li data-row="1" data-col="1" data-sizex="1" data-sizey="1" data-name="Fish">
+                  <button class="st-trigger-effect edit" data-effect="st-effect-3-right">Edit</button>
+                  <button class="delete">Delete</button>
+                </li>
+                <li data-row="1" data-col="1" data-sizex="1" data-sizey="1" data-name="Cat">
+                  <button class="st-trigger-effect edit" data-effect="st-effect-3-right">Edit</button>
+                  <button class="delete">Delete</button>
+                </li>
+                <!--
+                <li data-row="2" data-col="1" data-sizex="1" data-sizey="1">
+                  <button class="delete">Delete</button>
+                </li>
+                <li data-row="3" data-col="1" data-sizex="1" data-sizey="1">
+                  <button class="delete">Delete</button>
+                </li>
+
+                <li data-row="1" data-col="2" data-sizex="2" data-sizey="1">
+                  <button class="delete">Delete</button>
+                </li>
+                <li data-row="2" data-col="2" data-sizex="2" data-sizey="2">
+                  <button class="delete">Delete</button>
+                </li>
+
+                <li data-row="1" data-col="4" data-sizex="1" data-sizey="1">
+                  <button class="delete">Delete</button>
+                </li>
+                <li data-row="2" data-col="4" data-sizex="2" data-sizey="1">
+                  <button class="delete">Delete</button>
+                </li>
+                <li data-row="3" data-col="4" data-sizex="1" data-sizey="1">
+                  <button class="delete">Delete</button>
+                </li>
+
+                <li data-row="1" data-col="5" data-sizex="1" data-sizey="1">
+                  <button class="delete">Delete</button>
+                </li>
+                <li data-row="3" data-col="5" data-sizex="1" data-sizey="1">
+                  <button class="delete">Delete</button>
+                </li>
+
+                <li data-row="1" data-col="6" data-sizex="1" data-sizey="1">
+                  <button class="delete">Delete</button>
+                </li>
+                <li data-row="2" data-col="6" data-sizex="1" data-sizey="2">
+                  <button class="delete">Delete</button>
+                </li>
+                -->
+              </ul>
+            </div>
+
+            <hr>
+            <pre id="exportResult">
+              <p>Export results appear here.</p>
+            </pre>
+
+
+
+          </div><!-- /st-content-inner -->
+        </div><!-- /st-content -->
+
+      </div><!-- /st-pusher -->
+
+    </div><!-- /st-container -->
+
+    <!-- JS Libraries -->
+    <script src="/lib/SidebarTransitions/js/classie.js"></script>
+    <script src="/lib/SidebarTransitions/js/sidebarEffects.js "></script>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script src="/lib/gridster.js/dist/jquery.gridster.with-extras.min.js"></script>
+
+    <!-- Custom JS -->
+    <script src="/build/js/vendor.min.js"></script>
+  </body>
+</html>
