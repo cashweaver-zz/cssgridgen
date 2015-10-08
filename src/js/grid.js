@@ -7,6 +7,16 @@ $(function(){ //DOM Ready
   $(".gridster ul").gridster({
     widget_margins: [10, 10],
     widget_base_dimensions: [140, 140],
+    serialize_params: function($w, wgd) {
+      var result = {
+        col: wgd.col,
+        row: wgd.row,
+        size_x: wgd.size_x,
+        size_y: wgd.size_y,
+        name: wgd.el.data('name')
+      };
+      return result;
+    },
     resize: {
       enabled: true
     }
@@ -17,7 +27,7 @@ $(function(){ //DOM Ready
   $("#addCell").click(function () {
     var newCell = {
       html:
-        "<li>" +
+        "<li data-name=''>" +
           "<button class='st-trigger-effect edit' data-effect='st-effect-3-right'>Edit</button>" +
           "<button class='delete'>Delete</button>" +
         "</li>",
@@ -41,10 +51,9 @@ $(function(){ //DOM Ready
     })
   });
 
-  var editCellPrefix = 'editCell-'
   // Edit
+  var editCellPrefix = 'editCell-'
   $(".gridster ul li .edit").click(function () {
-    console.log(gridster);
     var cell = $(this).parent();
     var data = cell.data();
 
@@ -81,46 +90,152 @@ $(function(){ //DOM Ready
     });
   });
 
+  // Build a CSS rule set
+  function buildCSS(obj, tab, newLine) {
+    tab = (typeof tab !== 'undefined') ? tab : "  ";
+    newLine = (typeof newLine !== 'undefined') ? newLine : "<br>";
 
-  // Export
-  $("#export").click(function () {
-    console.log(gridster.serialize());
-    var exportCSS = "",
-      lineBreak = "<br>";
-    var id, gridColumn, gridRow;
-    var numCols = 0,
-      numRows = 0;
+    var css = "";
+    if (!obj.hasOwnProperty('selector') || !obj.hasOwnProperty('properties')) {
+      css = undefined;
+    }
+    else {
+      css = obj.selector + " {" + newLine;
+      for (var prop in obj.properties) {
+        css += tab + prop + ": " + obj.properties[prop] + ";" + newLine;
+      }
+      css += "}" + newLine;
+    }
+    return css;
+  }
 
+  // Determine which method to use to build the CSS which defines the current state of the grid
+  function getCellIndexMethod() {
+    var validAreas = true;
     gridster.serialize().forEach(function (cell, index) {
-      selector = "area-" + (index + 1);
-      gridColumn = cell.col.toString() + ((cell.size_x != 1) ? " / span " + cell.size_x : "");
-      gridRow = cell.row.toString() + ((cell.size_y != 1) ? " / span " + cell.size_y : "");
-      exportCSS +=
-        "#" + selector + " {" +
-        "grid-column: " + gridColumn + ";" +
-        " grid-row: " + gridRow + ";" +
-        "}" + lineBreak;
-
-      numCols = ((cell.col + cell.size_x - 1) > numCols) ? (cell.col + cell.size_x - 1) : numCols;
-      numRows = ((cell.row + cell.size_y - 1) > numRows) ? (cell.row + cell.size_y - 1) : numRows;
+      if (!cell.hasOwnProperty('name') || typeof cell.name != "string" || (!cell.name || cell.name.length === 0)) {
+        validAreas = false;
+      }
     });
 
-    var gridTemplateColumns = "auto",
-      gridTemplateRows = "auto";
+    return (validAreas) ? "areas" : "coords";
+  }
 
-    for (i = 1; i < numCols; i++) {
-       gridTemplateColumns += " auto";
+  // Called for each cell to determine the grid's dimensions
+  function updateGridDimensions(gd, cell) {
+    gd.x = ((cell.col + cell.size_x - 1) > gd.x) ? (cell.col + cell.size_x - 1) : gd.x;
+    gd.y = ((cell.row + cell.size_y - 1) > gd.y) ? (cell.row + cell.size_y - 1) : gd.y;
+  }
+
+  // Export CSS which defines the current state of the grid
+  $("#export").click(function () {
+    var numCols = 0, numRows = 0;
+    var gridDimensions = {
+      'x': 0,
+      'y': 0
     }
-    for (i = 1; i < numRows; i++) {
-       gridTemplateRows += " auto";
+    var cellIndexMethod = getCellIndexMethod();
+    var css = "";
+
+    switch (cellIndexMethod) {
+      case "areas":
+        var areas = [];
+        gridster.serialize().forEach(function (cell, index) {
+          css += buildCSS({
+            'selector': "#area-" + (index + 1),
+            'properties': {
+              'grid-area': cell.name
+            }
+          });
+
+          var gridColStart = cell.col,
+            gridColEnd = cell.col + cell.size_x,
+            gridRowStart = cell.row,
+            gridRowEnd = cell.row + cell.size_y;
+          for (var y = gridRowStart - 1; y < gridRowEnd - 1; y++) {
+            for (var x = gridColStart - 1; x < gridColEnd - 1; x++) {
+              if (typeof areas[y] === 'undefined') {
+                areas[y] = [];
+              }
+              areas[y][x] = cell.name
+            }
+          }
+
+          updateGridDimensions(gridDimensions, cell);
+        });
+
+        var gridTemplateColumns = "auto",
+          gridTemplateRows = "auto";
+
+        for (i = 1; i < gridDimensions.x; i++) {
+           gridTemplateColumns += " auto";
+        }
+        for (i = 1; i < gridDimensions.y; i++) {
+           gridTemplateRows += " auto";
+        }
+
+        var gridTemplateAreas = "";
+        for (var row in areas) {
+          gridTemplateAreas += "\"" + areas[row].join(" ") + "\" ";
+        }
+
+        var gridTemplateAreas = "";
+        for (y = 0; y < gridDimensions.y; y++) {
+          gridTemplateAreas += (y > 0) ? " \"" : "\"";
+          for (x = 0; x < gridDimensions.x; x++) {
+            gridTemplateAreas += (x > 0) ? " " : "";
+            gridTemplateAreas += (typeof areas[y][x] !== 'undefined') ? areas[y][x] : '.';
+          }
+          gridTemplateAreas += "\"";
+        }
+
+        css = buildCSS({
+          'selector': "#grid",
+          'properties': {
+            'display': "grid",
+            'grid-template-areas': gridTemplateAreas,
+            'grid-template-columns': gridTemplateColumns,
+            'grid-template-rows': gridTemplateRows,
+          }
+        }) + css;
+        break;
+      case "coords":
+        gridster.serialize().forEach(function (cell, index) {
+          css += buildCSS({
+            'selector': "#area-" + (index + 1),
+            'properties': {
+              'grid-column-start': cell.col,
+              'grid-column-end': cell.col + cell.size_x,
+              'grid-row-start': cell.row,
+              'grid-row-end': cell.row + cell.size_y,
+            }
+          });
+          updateGridDimensions(gridDimensions, cell);
+        });
+
+        var gridTemplateColumns = "auto",
+          gridTemplateRows = "auto";
+
+        for (i = 1; i < gridDimensions.x; i++) {
+           gridTemplateColumns += " auto";
+        }
+        for (i = 1; i < gridDimensions.y; i++) {
+           gridTemplateRows += " auto";
+        }
+
+        css = buildCSS({
+          'selector': "#grid",
+          'properties': {
+            'display': "grid",
+            'grid-template-columns': gridTemplateColumns,
+            'grid-template-rows': gridTemplateRows,
+          }
+        }) + css;
+        break;
+      default:
+        break;
     }
 
-    exportCSS =
-      "#grid {" + lineBreak +
-      "  grid-template-columns: " + gridTemplateColumns + ";" + lineBreak +
-      "  grid-template-rows: " + gridTemplateRows + ";" + lineBreak +
-      "}" + lineBreak +
-      exportCSS;
-    $("#exportResult").html(exportCSS);
+    $("#exportResult").html(css);
   });
 });
