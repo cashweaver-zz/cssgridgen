@@ -2,7 +2,30 @@ String.prototype.toProperCase = function () {
     return this.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
 };
 
+function init() {
+  console.log("Initializing");
+
+  $('.gridster li').each(function(index, li) {
+    console.log(li);
+    initAreaName(li);
+  });
+}
+
+function initAreaName(li) {
+  console.log(li);
+  console.log("init area name");
+  var areaName = li.children('.area-name');
+  if (areaName.length > 0) {
+    areaName.html(li.data('name'));
+  }
+  else {
+    li.append('<span class="area-name">'+li.data('name')+'</span>');
+  }
+}
+
 $(function(){ //DOM Ready
+
+  init();
 
   $(".gridster ul").gridster({
     widget_margins: [10, 10],
