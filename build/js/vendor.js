@@ -1,33 +1,133 @@
-String.prototype.toProperCase = function () {
-    return this.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
-};
-
-function init() {
-  console.log("Initializing");
-
-  $('.gridster li').each(function(index, li) {
-    console.log(li);
-    initAreaName(li);
-  });
-}
-
-function initAreaName(li) {
-  console.log(li);
-  console.log("init area name");
-  var areaName = li.children('.area-name');
-  if (areaName.length > 0) {
-    areaName.html(li.data('name'));
+var BootstrapForm = function (id, options) {
+  options = options || {};
+  if (options.classes && typeof options.classes === 'string') {
+    this.formTag = '<form id="' + id + '" name="' + id + '" class="' + classes + '">';
   }
   else {
-    li.append('<span class="area-name">'+li.data('name')+'</span>');
+    this.formTag = '<form id="' + id + '" name="' + id + '">';
+  }
+  this.formBody = "";
+  this.submitText = (options.submitText && typeof options.submitText === 'string') ? options.submitText : "Submit";
+  this.bootstrapVersion = 3;
+};
+
+BootstrapForm.prototype.form = function () {
+  return this.formTag
+    + this.formBody
+    + '<button type="submit" class="btn btn-default">' + this.submitText + '</button></form>';
+}
+
+BootstrapForm.prototype.addInput = function (id, type, options) {
+  options = options || {};
+  try {
+    console.log(typeof id);
+    if (typeof id === 'undefined' || typeof id !== 'string') {
+      throw new Error("Invalid argument: id not defined");
+    }
+    if (typeof type === 'undefined' || typeof type !== 'string') {
+      throw new Error("Invalid argument: id not defined");
+    }
+    this.formBody += '<div class="form-group">';
+    if (options.label && typeof options.label === 'string') {
+      this.formBody += '<label for="' + id + '">' + options.label + '</label>';
+    }
+
+    this.formBody += '<input id="' + id + '" type="' + type + '"';
+    if (options.classes && typeof options.classes === 'string') {
+      this.formBody += ' class="form-control ' + options.classes + '"';
+    }
+    else {
+      this.formBody += ' class="form-control"';
+    }
+    if (options.placeholder && typeof options.placeholder === 'string') {
+      this.formBody += ' placeholder="' + options.placeholder + '"';
+    }
+    this.formBody += '>';
+
+    if (options.help && typeof options.help === 'string') {
+      this.formBody += '<p class="help-block">' + options.help + '</p>';
+    }
+
+    this.formBody += '</div>';
+  }
+  catch (e) {
+    console.log("Failed to add input. \n" + e.message);
   }
 }
 
-$(function(){ //DOM Ready
+var GridElement = function (el) {
+  try {
+    if (!(el instanceof jQuery)) {
+      throw new Error("Invalid argument: Element is not a jQuery object");
+    }
+    this.sizex = el.data('sizex');
+    this.sizey = el.data('sizex');
+    this.row = el.data('row');
+    this.col = el.data('col');
+    this.name = el.data('name');
+    this.element = el;
+  }
+  catch (e) {
+    console.log("Failed to build GridElement. \n" + e.message);
+  }
+};
+GridElement.prototype.save = function () {
+  // Update properties
+  var propertiesToNotSave = ['element'];
+  for (var property in this) {
+    if (this.hasOwnProperty(property)) {
+      //a Don't save every property
+      if ($.inArray(property, propertiesToNotSave) == -1) {
+        this.element.data(property, this[property]);
+      }
+    }
+  }
 
-  init();
+  // Update user-facing values
+  this.element.children('.name').html(this.name);
+}
 
-  $(".gridster ul").gridster({
+GridElement.prototype.edit = function () {
+  var prefix = 'editCell-';
+  var formId = 'editCellForm';
+  var gridEl = this;
+
+  var cell = this.element;
+  var data = cell.data();
+
+  var form = new BootstrapForm(formId);
+  for (var property in data) {
+    if (data.hasOwnProperty(property)) {
+      // Don't convert every property into an input
+      if ($.inArray(property, ['coords', 'row', 'col', 'sizex', 'sizey']) == -1) {
+        form.addInput(prefix+property, 'text', {label: property.toProperCase()});
+      }
+    }
+  }
+  var sidebarHtml = '<h2>Edit</h2>' + form.form();
+  $("#sidebar").html(sidebarHtml);
+
+  // Set values
+  $("#" + formId + " input").each(function () {
+    $(this).val(gridEl[$(this)[0].id.replace(prefix, '')]);
+  });
+
+  // Handle submission
+  $("#" + formId).off('submit').on('submit', function () {
+    var formData = $(this).serializeArray();
+    for (i = 0; i < formData.length; i++) {
+      // TODO: Sanatize?
+      //cell.data(formData[i].name.replace(prefix, ''), formData[i].value);
+      gridEl[formData[i].name.replace(prefix, '')] = formData[i].value;
+    }
+    gridEl.save();
+    return false;
+  });
+};
+
+// DOM Ready
+$(function () {
+  $('#grid').gridster({
     widget_margins: [10, 10],
     widget_base_dimensions: [140, 140],
     serialize_params: function($w, wgd) {
@@ -36,6 +136,7 @@ $(function(){ //DOM Ready
         row: wgd.row,
         size_x: wgd.size_x,
         size_y: wgd.size_y,
+        // Add support for name
         name: wgd.el.data('name')
       };
       return result;
@@ -44,127 +145,115 @@ $(function(){ //DOM Ready
       enabled: true
     }
   });
-  var gridster = $(".gridster ul").gridster().data('gridster');
 
-  // Add Cell
-  $("#addCell").click(function () {
-    var newCell = {
+  CSSGRIDGENERATOR.grid.grid = $('#grid').gridster().data('gridster');
+
+  // Handle editing and saving a grid element
+  $('#grid .edit').click(function () {
+    var gridEl = new GridElement($(this).parent());
+    gridEl.edit();
+  });
+
+  $("#export").click(function () {
+     CSSGRIDGENERATOR.grid.exportCSS();
+  });
+});
+
+String.prototype.toProperCase = function () {
+  return this.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
+};
+
+var CSSGRIDGENERATOR = CSSGRIDGENERATOR || {};
+
+CSSGRIDGENERATOR.grid = {
+  grid: {}, // Set later
+  gridTemplateRows: [],
+  gridTemplateColumns: [],
+  gridColumnGap: "",
+  gridRowGap: "",
+
+  // Edit the row heights, col widths, and gutters
+  edit: function () {
+    // Populate the sidebar with the edit form for this
+    // Show the sidebar
+  },
+
+  // Add an element to the grid
+  addElement: function () {
+    var newElement = {
       html:
         "<li data-name=''>" +
           "<button class='st-trigger-effect edit' data-effect='st-effect-3-right'>Edit</button>" +
+          "<span class='name'></span>" +
           "<button class='delete'>Delete</button>" +
         "</li>",
-      size_x: 1,
-      size_y: 1,
-      //col: 1,
-      //row: 1
+      sizex: 1,
+      sizey: 1
     }
-    var cellHtml =
-    gridster.add_widget(newCell.html, newCell.size_x, newCell.size_y);
-  });
+    gridster.add_widget(newElement.html, newElement.sizex, newElement.sizey);
+  },
 
-  $("#serializeGrid").click(function () {
-    console.log(gridster.serialize());
-  });
+  // Delete an element from the grid
+  deleteElement: function (el) {
+    try {
+      if (!(el instanceof jQuery)) {
+        throw new Error("Invalid argument: Element is not a jQuery object");
+      }
+      gridster.remove_widget(el);
+    }
+    catch (e) {
+      console.log("Failed to delete GridElement. \n" + e.message);
+    }
+  },
 
-  $("#toggleDeleteMode").click(function () {
-    $(".gridster").toggleClass("deleteModeEnabled");
-    $(".gridster ul li .delete").click(function () {
-      gridster.remove_widget($(this).parent());
-    })
-  });
+  // Export a usable CSS representation of the current state of the grid
+  exportCSS: function () {
+    // Build a CSS rule set
+    function buildCSSRule(obj, tab, newLine) {
+      tab = (typeof tab !== 'undefined') ? tab : "  ";
+      newLine = (typeof newLine !== 'undefined') ? newLine : "<br>";
 
-  // Edit
-  var editCellPrefix = 'editCell-'
-  $(".gridster ul li .edit").click(function () {
-    var cell = $(this).parent();
-    var data = cell.data();
-
-    // Build form
-    var formHtml = "<h2>Edit Cell</h2><form id='editCellForm' name='editCellForm'>";
-    for (var property in data) {
-      if (data.hasOwnProperty(property)) {
-        // Don't convert every property into an input
-        if ($.inArray(property, ['coords', 'row', 'col', 'sizex', 'sizey']) == -1) {
-        formHtml +=
-          "<div class='form-group'>" +
-            "<label for='" + editCellPrefix + property +"'>" + property.toProperCase() + "</label>" +
-            "<input type='text' class='form-control' id='" + editCellPrefix + property + "'name='" + editCellPrefix + property + "'>" +
-          "</div>";
+      var css = "";
+      if (!obj.hasOwnProperty('selector') || !obj.hasOwnProperty('properties')) {
+        css = undefined;
+      }
+      else {
+        css = obj.selector + " {" + newLine;
+        for (var prop in obj.properties) {
+          css += tab + prop + ": " + obj.properties[prop] + ";" + newLine;
         }
+        css += "}" + newLine;
       }
+      return css;
     }
-    formHtml += "<button type='submit' class='btn btn-default'>Save</button></form>";
-    $("#editCellMenu").html(formHtml);
 
-    // Set values
-    $("#editCellForm input").each(function () {
-      $(this).val(cell.data($(this)[0].id.replace(editCellPrefix, '')));
-    });
-
-    // Handle submission
-    $("#editCellForm").off('submit').on('submit', function () {
-      var dataArray = $(this).serializeArray();
-      for (i = 0; i < dataArray.length; i++) {
-        // TODO: Sanatize?
-        cell.data(dataArray[i].name.replace(editCellPrefix, ''), dataArray[i].value);
-      }
-      return false;
-    });
-  });
-
-  // Build a CSS rule set
-  function buildCSS(obj, tab, newLine) {
-    tab = (typeof tab !== 'undefined') ? tab : "  ";
-    newLine = (typeof newLine !== 'undefined') ? newLine : "<br>";
-
-    var css = "";
-    if (!obj.hasOwnProperty('selector') || !obj.hasOwnProperty('properties')) {
-      css = undefined;
+    function updateGridDimensions(gd, cell) {
+      gd.x = ((cell.col + cell.size_x - 1) > gd.x) ? (cell.col + cell.size_x - 1) : gd.x;
+      gd.y = ((cell.row + cell.size_y - 1) > gd.y) ? (cell.row + cell.size_y - 1) : gd.y;
     }
-    else {
-      css = obj.selector + " {" + newLine;
-      for (var prop in obj.properties) {
-        css += tab + prop + ": " + obj.properties[prop] + ";" + newLine;
-      }
-      css += "}" + newLine;
+
+    // Determine which method to use to build the CSS which defines the current state of the grid
+    function getCellIndexMethod(grid) {
+      var validAreas = true;
+      grid.serialize().forEach(function (cell, index) {
+        if (!cell.hasOwnProperty('name') || typeof cell.name != "string" || (!cell.name || cell.name.length === 0)) {
+          validAreas = false;
+        }
+      });
+      return (validAreas) ? "areas" : "coords";
     }
-    return css;
-  }
 
-  // Determine which method to use to build the CSS which defines the current state of the grid
-  function getCellIndexMethod() {
-    var validAreas = true;
-    gridster.serialize().forEach(function (cell, index) {
-      if (!cell.hasOwnProperty('name') || typeof cell.name != "string" || (!cell.name || cell.name.length === 0)) {
-        validAreas = false;
-      }
-    });
-
-    return (validAreas) ? "areas" : "coords";
-  }
-
-  // Called for each cell to determine the grid's dimensions
-  function updateGridDimensions(gd, cell) {
-    gd.x = ((cell.col + cell.size_x - 1) > gd.x) ? (cell.col + cell.size_x - 1) : gd.x;
-    gd.y = ((cell.row + cell.size_y - 1) > gd.y) ? (cell.row + cell.size_y - 1) : gd.y;
-  }
-
-  // Export CSS which defines the current state of the grid
-  $("#export").click(function () {
-    var numCols = 0, numRows = 0;
     var gridDimensions = {
       'x': 0,
       'y': 0
     }
-    var cellIndexMethod = getCellIndexMethod();
     var css = "";
 
-    switch (cellIndexMethod) {
+    switch (getCellIndexMethod(this.grid)) {
       case "areas":
         var areas = [];
-        gridster.serialize().forEach(function (cell, index) {
-          css += buildCSS({
+        this.grid.serialize().forEach(function (cell, index) {
+          css += buildCSSRule({
             'selector': "#area-" + (index + 1),
             'properties': {
               'grid-area': cell.name
@@ -212,7 +301,7 @@ $(function(){ //DOM Ready
           gridTemplateAreas += "\"";
         }
 
-        css = buildCSS({
+        css = buildCSSRule({
           'selector': "#grid",
           'properties': {
             'display': "grid",
@@ -223,8 +312,8 @@ $(function(){ //DOM Ready
         }) + css;
         break;
       case "coords":
-        gridster.serialize().forEach(function (cell, index) {
-          css += buildCSS({
+        this.grid.serialize().forEach(function (cell, index) {
+          css += buildCSSRule({
             'selector': "#area-" + (index + 1),
             'properties': {
               'grid-column-start': cell.col,
@@ -246,7 +335,7 @@ $(function(){ //DOM Ready
            gridTemplateRows += " auto";
         }
 
-        css = buildCSS({
+        css = buildCSSRule({
           'selector': "#grid",
           'properties': {
             'display': "grid",
@@ -260,8 +349,8 @@ $(function(){ //DOM Ready
     }
 
     $("#exportResult").html(css);
-  });
-});
+  }
+};
 
 /**
  * sidebarEffects.js v1.0.0

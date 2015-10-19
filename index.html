@@ -32,7 +32,7 @@
     <!-- http://tympanus.net/codrops/2013/08/28/transitions-for-off-canvas-navigations/ -->
     <div id="st-container" class="st-container">
 
-      <div class="st-menu st-effect-3-right" id="editCellMenu">
+      <div class="st-menu st-effect-3-right" id="sidebar">
       </div>
 
       <!-- content push wrapper -->
@@ -61,55 +61,22 @@
 
 
             <div class="gridster">
-              <ul>
+              <ul id="grid">
                 <li data-row="1" data-col="1" data-sizex="1" data-sizey="1" data-name="Fish">
                   <button class="st-trigger-effect edit" data-effect="st-effect-3-right">Edit</button>
+                  <span class="name">Fish</span>
                   <button class="delete">Delete</button>
                 </li>
                 <li data-row="1" data-col="1" data-sizex="1" data-sizey="1" data-name="Cat">
                   <button class="st-trigger-effect edit" data-effect="st-effect-3-right">Edit</button>
+                  <span class="name">Cat</span>
                   <button class="delete">Delete</button>
                 </li>
                 <li data-row="2" data-col="1" data-sizex="1" data-sizey="1" data-name="">
                   <button class="st-trigger-effect edit" data-effect="st-effect-3-right">Edit</button>
+                  <span class="name"></span>
                   <button class="delete">Delete</button>
                 </li>
-                <!--
-                <li data-row="3" data-col="1" data-sizex="1" data-sizey="1">
-                  <button class="delete">Delete</button>
-                </li>
-
-                <li data-row="1" data-col="2" data-sizex="2" data-sizey="1">
-                  <button class="delete">Delete</button>
-                </li>
-                <li data-row="2" data-col="2" data-sizex="2" data-sizey="2">
-                  <button class="delete">Delete</button>
-                </li>
-
-                <li data-row="1" data-col="4" data-sizex="1" data-sizey="1">
-                  <button class="delete">Delete</button>
-                </li>
-                <li data-row="2" data-col="4" data-sizex="2" data-sizey="1">
-                  <button class="delete">Delete</button>
-                </li>
-                <li data-row="3" data-col="4" data-sizex="1" data-sizey="1">
-                  <button class="delete">Delete</button>
-                </li>
-
-                <li data-row="1" data-col="5" data-sizex="1" data-sizey="1">
-                  <button class="delete">Delete</button>
-                </li>
-                <li data-row="3" data-col="5" data-sizex="1" data-sizey="1">
-                  <button class="delete">Delete</button>
-                </li>
-
-                <li data-row="1" data-col="6" data-sizex="1" data-sizey="1">
-                  <button class="delete">Delete</button>
-                </li>
-                <li data-row="2" data-col="6" data-sizex="1" data-sizey="2">
-                  <button class="delete">Delete</button>
-                </li>
-                -->
               </ul>
             </div>
 
@@ -135,6 +102,7 @@
     <script src="/lib/gridster.js/dist/jquery.gridster.with-extras.min.js"></script>
 
     <!-- Custom JS -->
-    <script src="/build/js/vendor.min.js"></script>
+    <!-- Production <script src="/build/js/vendor.min.js"></script> -->
+    <script src="/build/js/vendor.js"></script>
   </body>
 </html>

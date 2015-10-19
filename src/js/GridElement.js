@@ -15,15 +15,19 @@ var GridElement = function (el) {
   }
 };
 GridElement.prototype.save = function () {
+  // Update properties
   var propertiesToNotSave = ['element'];
   for (var property in this) {
     if (this.hasOwnProperty(property)) {
-      // Don't save every property
+      //a Don't save every property
       if ($.inArray(property, propertiesToNotSave) == -1) {
         this.element.data(property, this[property]);
       }
     }
   }
+
+  // Update user-facing values
+  this.element.children('.name').html(this.name);
 }
 
 GridElement.prototype.edit = function () {
@@ -34,31 +38,17 @@ GridElement.prototype.edit = function () {
   var cell = this.element;
   var data = cell.data();
 
-
-  function buildFormInput(prefix, property) {
-    return "<div class='form-group'>" +
-      "<label for='" + prefix + property +"'>" + property.toProperCase() + "</label>" +
-      "<input type='text' class='form-control' id='" + prefix + property + "'name='" + prefix + property + "'>" +
-    "</div>";
-  }
-
-  function buildForm() {
-    var formHtml = "<h2>Edit Cell</h2>";
-    formHtml += "<form id='" + formId + "' name='" + formId + "'>";
-
-    for (var property in data) {
-      if (data.hasOwnProperty(property)) {
-        // Don't convert every property into an input
-        if ($.inArray(property, ['coords', 'row', 'col', 'sizex', 'sizey']) == -1) {
-          formHtml += buildFormInput(prefix, property);
-        }
+  var form = new BootstrapForm(formId);
+  for (var property in data) {
+    if (data.hasOwnProperty(property)) {
+      // Don't convert every property into an input
+      if ($.inArray(property, ['coords', 'row', 'col', 'sizex', 'sizey']) == -1) {
+        form.addInput(prefix+property, 'text', {label: property.toProperCase()});
       }
     }
-
-    formHtml += "<button type='submit' class='btn btn-default'>Save</button></form>";
-    return formHtml;
   }
-  $("#sidebar").html(buildForm());
+  var sidebarHtml = '<h2>Edit</h2>' + form.form();
+  $("#sidebar").html(sidebarHtml);
 
   // Set values
   $("#" + formId + " input").each(function () {

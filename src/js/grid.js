@@ -29,8 +29,5 @@ $(function () {
 
   $("#export").click(function () {
      CSSGRIDGENERATOR.grid.exportCSS();
-  })
-
-
-
+  });
 });

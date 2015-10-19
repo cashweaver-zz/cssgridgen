@@ -19,6 +19,7 @@ CSSGRIDGENERATOR.grid = {
       html:
         "<li data-name=''>" +
           "<button class='st-trigger-effect edit' data-effect='st-effect-3-right'>Edit</button>" +
+          "<span class='name'></span>" +
           "<button class='delete'>Delete</button>" +
         "</li>",
       sizex: 1,
