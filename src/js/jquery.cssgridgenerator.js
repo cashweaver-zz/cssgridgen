@@ -93,8 +93,12 @@ CSSGRIDGENERATOR.grid = {
           }
         }
         $("#st-container").removeClass('st-menu-open');
-        // TODO: add delay
-        $("#sidebar").html('');
+        // Wait to hide the form until the sidebar has closed
+        // ref: http://stackoverflow.com/a/3473259
+        $("#sidebar").delay(500).queue(function () {
+          $(this).html('');
+          $(this).dequeue();
+        });
       },
     };
     validateOptions.rules[prefix+"gridColumnGap"] = { pattern: gapValidRegex };

@@ -61,7 +61,12 @@ GridElement.prototype.edit = function () {
   $("#deleteCell").click(function () {
     CSSGRIDGENERATOR.grid.grid.remove_widget(gridEl.element, function () {
       $("#st-container").removeClass('st-menu-open');
-      $("#sidebar").html('');
+      // Wait to hide the form until the sidebar has closed
+      // ref: http://stackoverflow.com/a/3473259
+      $("#sidebar").delay(500).queue(function () {
+        $(this).html('');
+        $(this).dequeue();
+      });
     });
   });
 
@@ -77,8 +82,12 @@ GridElement.prototype.edit = function () {
       gridEl.save();
 
       $("#st-container").removeClass('st-menu-open');
-      // TODO: add delay
-      $("#sidebar").html('');
+      // Wait to hide the form until the sidebar has closed
+      // ref: http://stackoverflow.com/a/3473259
+      $("#sidebar").delay(500).queue(function () {
+        $(this).html('');
+        $(this).dequeue();
+      })
     },
   };
   // Note: Not all valid area names are valid <custom-ident>s
