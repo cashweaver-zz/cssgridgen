@@ -8,7 +8,7 @@
  * Copyright 2013, Codrops
  * http://www.codrops.com
  */
- var SidebarMenuEffects = (function() {
+ var SidebarMenuEffects = SidebarMenuEffects || function() {
 
  	function hasParentClass( e, classname ) {
 		if(e === document) return false;
@@ -60,4 +60,4 @@
 
 	init();
 
-})();
+};

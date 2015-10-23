@@ -20,7 +20,6 @@ BootstrapForm.prototype.form = function () {
 BootstrapForm.prototype.addInput = function (id, type, options) {
   options = options || {};
   try {
-    console.log(typeof id);
     if (typeof id === 'undefined' || typeof id !== 'string') {
       throw new Error("Invalid argument: id not defined");
     }
@@ -32,7 +31,7 @@ BootstrapForm.prototype.addInput = function (id, type, options) {
       this.formBody += '<label for="' + id + '">' + options.label + '</label>';
     }
 
-    this.formBody += '<input id="' + id + '" type="' + type + '"';
+    this.formBody += '<input id="' + id + '" name="' + id + '" type="' + type + '"';
     if (options.classes && typeof options.classes === 'string') {
       this.formBody += ' class="form-control ' + options.classes + '"';
     }

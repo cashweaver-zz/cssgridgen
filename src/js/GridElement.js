@@ -47,7 +47,9 @@ GridElement.prototype.edit = function () {
       }
     }
   }
-  var sidebarHtml = '<h2>Edit</h2>' + form.form();
+  var sidebarHtml = '<h2>Edit</h2>'
+    + form.form()
+    + '<button id="deleteCell" class="btn btn-danger">Delete</button>';
   $("#sidebar").html(sidebarHtml);
 
   // Set values
@@ -55,15 +57,41 @@ GridElement.prototype.edit = function () {
     $(this).val(gridEl[$(this)[0].id.replace(prefix, '')]);
   });
 
-  // Handle submission
-  $("#" + formId).off('submit').on('submit', function () {
-    var formData = $(this).serializeArray();
-    for (i = 0; i < formData.length; i++) {
-      // TODO: Sanatize?
-      //cell.data(formData[i].name.replace(prefix, ''), formData[i].value);
-      gridEl[formData[i].name.replace(prefix, '')] = formData[i].value;
-    }
-    gridEl.save();
-    return false;
+  // Handle deletion
+  $("#deleteCell").click(function () {
+    CSSGRIDGENERATOR.grid.grid.remove_widget(gridEl.element, function () {
+      $("#st-container").removeClass('st-menu-open');
+      $("#sidebar").html('');
+    });
   });
+
+  // Build validation
+  var validateOptions = {
+    rules: {},
+    submitHandler: function (form, event) {
+      var formData = $(form).serializeArray();
+      for (i = 0; i < formData.length; i++) {
+        // TODO: Sanatize?
+        gridEl[formData[i].name.replace(prefix, '')] = formData[i].value.trim();
+      }
+      gridEl.save();
+
+      $("#st-container").removeClass('st-menu-open');
+      // TODO: add delay
+      $("#sidebar").html('');
+    },
+  };
+  // Note: Not all valid area names are valid <custom-ident>s
+  // see:  http://www.w3.org/TR/css-grid-1/#valdef-grid-template-areas-string
+  // Naive valid rexed based on
+  // http://www.w3.org/TR/css-grid-1/#propdef-grid-template-areas
+  // TODO: Improve regex -- add support for non-ASCII code point
+  // Don't punish the user for extra whitespace. Remove it before we save.
+  var areaNameValidRegex = /^\s*[0-9a-zA-Z-_]+\s*$/;
+  validateOptions.rules[prefix+"name"] = { pattern: areaNameValidRegex };
+
+  // Handle submission
+  $("#" + formId).off('submit').on('submit', function (e) {
+    e.preventDefault();
+  }).validate(validateOptions);
 };

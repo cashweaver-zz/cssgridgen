@@ -23,6 +23,10 @@
 .gridster .player {
   box-shadow: 3px 3px 5px rgba(0,0,0,0.3);
 }
+.gridster .grid {
+  background: rgba(0, 0, 0, 0.1);
+  box-shadow: inset 0 0 10px 1px rgba(0, 0, 0, 0.2);
+}
 
 /* Effect 3: Push from Left*/
 .st-effect-3-left.st-menu-open .st-pusher {
@@ -75,5 +79,6 @@
 .st-content {
   background-color: #3C87C7;
 }
+
 
 

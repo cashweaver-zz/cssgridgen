@@ -2,15 +2,116 @@ var CSSGRIDGENERATOR = CSSGRIDGENERATOR || {};
 
 CSSGRIDGENERATOR.grid = {
   grid: {}, // Set later
-  gridTemplateRows: [],
-  gridTemplateColumns: [],
-  gridColumnGap: "",
-  gridRowGap: "",
+  gridTemplateRows: ['auto'],
+  gridTemplateColumns: ['auto'],
+  gridColumnGap: "0",
+  gridRowGap: "0",
+  cols: 1,
+  rows: 1,
+
+  updateDimensions: function () {
+    var grid = this;
+    // Update this.row, this.col
+    this.cols = 0;
+    this.rows = 0;
+    this.grid.serialize().forEach(function (cell, index) {
+      grid.cols = ((cell.col + cell.size_x - 1) > grid.cols) ? (cell.col + cell.size_x - 1) : grid.cols;
+      grid.rows = ((cell.row + cell.size_y - 1) > grid.rows) ? (cell.row + cell.size_y - 1) : grid.rows;
+    });
+
+    // Match template arrays to the current grid state
+    // Add new cols/rows
+    for (var x = 0; x < this.cols; x++) {
+      if (typeof this.gridTemplateColumns[x] === 'undefined') {
+        this.gridTemplateColumns[x] = 'auto';
+      }
+    }
+    for (var y = 0; y < this.rows; y++) {
+      if (typeof this.gridTemplateRows[y] === 'undefined') {
+        this.gridTemplateRows[y] = 'auto';
+      }
+    }
+
+    // Delete removed cols/rows
+    this.gridTemplateColumns = this.gridTemplateColumns.slice(0, this.cols);
+    this.gridTemplateRows = this.gridTemplateRows.slice(0, this.rows);
+  },
 
   // Edit the row heights, col widths, and gutters
   edit: function () {
-    // Populate the sidebar with the edit form for this
-    // Show the sidebar
+    var prefix = 'editGrid-';
+    var formId = 'editGridForm';
+    var grid = this;
+
+    // Build form
+    var form = new BootstrapForm(formId);
+    form.addInput(prefix+"gridColumnGap", 'text', {label: "Column Gap"});
+    form.addInput(prefix+"gridRowGap", 'text', {label: "Row Gap"});
+    this.updateDimensions();
+    for (var x = 0; x < this.cols; x++) {
+      form.addInput(prefix+"gridTemplateColumns-"+x, 'text', {label: "Column: " + (x+1)});
+    }
+    for (var y = 0; y < this.rows; y++) {
+      form.addInput(prefix+"gridTemplateRows-"+y, 'text', {label: "Row: " + (y+1)});
+    }
+    var sidebarHtml = '<h2>Edit Grid</h2>' + form.form();
+    $("#sidebar").html(sidebarHtml);
+
+    // Set values
+    $("#" + formId + " input").each(function () {
+      var fieldName = $(this)[0].id.replace(prefix, '');
+      if (fieldName.match(/Template/)) {
+        var index = fieldName.match(/[0-9]+/);
+        fieldName = fieldName.replace(/-[0-9]+/, '');
+        $(this).val(grid[fieldName][index.pop()]);
+      }
+      else {
+        $(this).val(grid[fieldName]);
+      }
+    });
+
+    // Build validation
+    // ref: http://www.shamasis.net/2009/07/regular-expression-to-validate-css-length-and-position-values/
+    var gapValidRegex = /^\s*(auto|0)$|^[+-]?[0-9]+.?([0-9]+)?(px|em|ex|%|in|cm|mm|pt|pc)$\s*/;
+    // Valid regex for gridTemplateRows and/or gridTemplateColumns fields
+    // ref: http://www.w3.org/TR/css-grid-1/#propdef-grid-template-columns
+    // everything but minmax:  /^\s*((auto|0)|[+-]?[0-9]+.?([0-9]+)?(px|em|ex|%|in|cm|mm|pt|pc)|max-content|min-content|[0-9]+fr)\s*$/;
+    var gridTemplateValidRegex = /^\s*((auto|0)|[+-]?[0-9]+.?([0-9]+)?(px|em|ex|%|in|cm|mm|pt|pc)|max-content|min-content|[0-9]+fr|minmax\(\s*((auto|0)|[+-]?[0-9]+.?([0-9]+)?(px|em|ex|%|in|cm|mm|pt|pc)|max-content|min-content|[0-9]+fr)\s*,\s*((auto|0)|[+-]?[0-9]+.?([0-9]+)?(px|em|ex|%|in|cm|mm|pt|pc)|max-content|min-content|[0-9]+fr)\s*\))\s*$/;
+    var validateOptions = {
+      rules: {},
+      submitHandler: function (form, event) {
+        var formData = $(form).serializeArray();
+        for (i = 0; i < formData.length; i++) {
+          var fieldName = formData[i].name.replace(prefix, '');
+          if (fieldName.match(/Gap/)) {
+            grid[fieldName] = formData[i].value;
+          }
+          else if (fieldName.match(/Template/)) {
+            var index = fieldName.match(/[0-9]+/);
+            fieldName = fieldName.replace(/-[0-9]+/, '');
+            grid[fieldName][index.pop()] = formData[i].value;
+          }
+        }
+        $("#st-container").removeClass('st-menu-open');
+        // TODO: add delay
+        $("#sidebar").html('');
+      },
+    };
+    validateOptions.rules[prefix+"gridColumnGap"] = { pattern: gapValidRegex };
+    validateOptions.rules[prefix+"gridRowGap"] = { pattern: gapValidRegex };
+    for (var x = 0; x < this.cols; x++) {
+      validateOptions.rules[prefix+"gridTemplateColumns-"+x] = { pattern: gridTemplateValidRegex };
+    }
+    for (var y = 0; y < this.rows; y++) {
+      validateOptions.rules[prefix+"gridTemplateRows-"+y] = { pattern: gridTemplateValidRegex };
+    }
+
+
+    // Handle submission
+    $("#" + formId).off('submit').on('submit', function (e) {
+      e.preventDefault();
+    }).validate(validateOptions);
+
   },
 
   // Add an element to the grid
@@ -25,7 +126,7 @@ CSSGRIDGENERATOR.grid = {
       sizex: 1,
       sizey: 1
     }
-    gridster.add_widget(newElement.html, newElement.sizex, newElement.sizey);
+    this.grid.add_widget(newElement.html, newElement.sizex, newElement.sizey);
   },
 
   // Delete an element from the grid
@@ -34,7 +135,7 @@ CSSGRIDGENERATOR.grid = {
       if (!(el instanceof jQuery)) {
         throw new Error("Invalid argument: Element is not a jQuery object");
       }
-      gridster.remove_widget(el);
+      this.grid.remove_widget(el);
     }
     catch (e) {
       console.log("Failed to delete GridElement. \n" + e.message);
@@ -62,10 +163,6 @@ CSSGRIDGENERATOR.grid = {
       return css;
     }
 
-    function updateGridDimensions(gd, cell) {
-      gd.x = ((cell.col + cell.size_x - 1) > gd.x) ? (cell.col + cell.size_x - 1) : gd.x;
-      gd.y = ((cell.row + cell.size_y - 1) > gd.y) ? (cell.row + cell.size_y - 1) : gd.y;
-    }
 
     // Determine which method to use to build the CSS which defines the current state of the grid
     function getCellIndexMethod(grid) {
@@ -78,12 +175,9 @@ CSSGRIDGENERATOR.grid = {
       return (validAreas) ? "areas" : "coords";
     }
 
-    var gridDimensions = {
-      'x': 0,
-      'y': 0
-    }
     var css = "";
 
+    this.updateDimensions();
     switch (getCellIndexMethod(this.grid)) {
       case "areas":
         var areas = [];
@@ -91,7 +185,9 @@ CSSGRIDGENERATOR.grid = {
           css += buildCSSRule({
             'selector': "#area-" + (index + 1),
             'properties': {
-              'grid-area': cell.name
+              // Note: Not all valid area names are valid <custom-ident>s
+              // see:  http://www.w3.org/TR/css-grid-1/#valdef-grid-template-areas-string
+              'grid-area': (cell.name.match(/^[0-9]/)) ? "\\3"+cell.name : cell.name,
             }
           });
 
@@ -107,19 +203,10 @@ CSSGRIDGENERATOR.grid = {
               areas[y][x] = cell.name
             }
           }
-
-          updateGridDimensions(gridDimensions, cell);
         });
 
-        var gridTemplateColumns = "auto",
-          gridTemplateRows = "auto";
-
-        for (i = 1; i < gridDimensions.x; i++) {
-           gridTemplateColumns += " auto";
-        }
-        for (i = 1; i < gridDimensions.y; i++) {
-           gridTemplateRows += " auto";
-        }
+        var gridTemplateColumns = this.gridTemplateColumns.join(' ');
+          gridTemplateRows = this.gridTemplateRows.join(' ');
 
         var gridTemplateAreas = "";
         for (var row in areas) {
@@ -127,9 +214,9 @@ CSSGRIDGENERATOR.grid = {
         }
 
         var gridTemplateAreas = "";
-        for (y = 0; y < gridDimensions.y; y++) {
+        for (y = 0; y < this.rows; y++) {
           gridTemplateAreas += (y > 0) ? " \"" : "\"";
-          for (x = 0; x < gridDimensions.x; x++) {
+          for (x = 0; x < this.cols; x++) {
             gridTemplateAreas += (x > 0) ? " " : "";
             gridTemplateAreas += (typeof areas[y][x] !== 'undefined') ? areas[y][x] : '.';
           }
@@ -143,6 +230,7 @@ CSSGRIDGENERATOR.grid = {
             'grid-template-areas': gridTemplateAreas,
             'grid-template-columns': gridTemplateColumns,
             'grid-template-rows': gridTemplateRows,
+            'grid-gap': this.gridColumnGap + " " + this.gridRowGap,
           }
         }) + css;
         break;
@@ -157,18 +245,10 @@ CSSGRIDGENERATOR.grid = {
               'grid-row-end': cell.row + cell.size_y,
             }
           });
-          updateGridDimensions(gridDimensions, cell);
         });
 
-        var gridTemplateColumns = "auto",
-          gridTemplateRows = "auto";
-
-        for (i = 1; i < gridDimensions.x; i++) {
-           gridTemplateColumns += " auto";
-        }
-        for (i = 1; i < gridDimensions.y; i++) {
-           gridTemplateRows += " auto";
-        }
+        var gridTemplateColumns = this.gridTemplateColumns.join(' ');
+          gridTemplateRows = this.gridTemplateRows.join(' ');
 
         css = buildCSSRule({
           'selector': "#grid",
@@ -176,6 +256,7 @@ CSSGRIDGENERATOR.grid = {
             'display': "grid",
             'grid-template-columns': gridTemplateColumns,
             'grid-template-rows': gridTemplateRows,
+            'grid-gap': this.gridColumnGap + " " + this.gridRowGap,
           }
         }) + css;
         break;

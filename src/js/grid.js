@@ -1,5 +1,7 @@
 // DOM Ready
 $(function () {
+  SidebarMenuEffects();
+
   $('#grid').gridster({
     widget_margins: [10, 10],
     widget_base_dimensions: [140, 140],
@@ -28,6 +30,21 @@ $(function () {
   });
 
   $("#export").click(function () {
-     CSSGRIDGENERATOR.grid.exportCSS();
+    CSSGRIDGENERATOR.grid.exportCSS();
+  });
+
+  $("#addCell").click(function () {
+    CSSGRIDGENERATOR.grid.addElement();
+
+    // Apply callbacks to new elements
+    $('#grid .edit').click(function () {
+      var gridEl = new GridElement($(this).parent());
+      gridEl.edit();
+    });
+    SidebarMenuEffects();
+  });
+
+  $("#editGrid").click(function () {
+    CSSGRIDGENERATOR.grid.edit();
   });
 });
