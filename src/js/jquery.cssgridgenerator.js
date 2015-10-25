@@ -15,8 +15,8 @@ CSSGRIDGENERATOR.grid = {
     this.cols = 0;
     this.rows = 0;
     this.grid.serialize().forEach(function (cell, index) {
-      grid.cols = ((cell.col + cell.size_x - 1) > grid.cols) ? (cell.col + cell.size_x - 1) : grid.cols;
-      grid.rows = ((cell.row + cell.size_y - 1) > grid.rows) ? (cell.row + cell.size_y - 1) : grid.rows;
+      grid.cols = Math.max((cell.col + cell.size_x - 1), grid.cols);
+      grid.rows = Math.max((cell.row + cell.size_y - 1), grid.rows);
     });
 
     // Match template arrays to the current grid state
@@ -93,11 +93,14 @@ CSSGRIDGENERATOR.grid = {
           }
         }
         $("#st-container").removeClass('st-menu-open');
+        $("#alerts").html('<div class="alert alert-success alert-dismissible fade in" role="alert"> <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><strong>Success!</strong> The grid has been updated successfully.</div>');
         // Wait to hide the form until the sidebar has closed
         // ref: http://stackoverflow.com/a/3473259
         $("#sidebar").delay(500).queue(function () {
           $(this).html('');
           $(this).dequeue();
+        }).delay(500).queue(function () {
+
         });
       },
     };
@@ -123,14 +126,13 @@ CSSGRIDGENERATOR.grid = {
     var newElement = {
       html:
         "<li data-name=''>" +
-          "<button class='st-trigger-effect edit' data-effect='st-effect-3-right'>Edit</button>" +
+          '<button type="button" data-toggle="popover" class="btn btn-default edit edit-cell"><span class="fa fa-lg fa-pencil"></span> <span class="sr-only">Edit</span></button>' +
           "<span class='name'></span>" +
-          "<button class='delete'>Delete</button>" +
         "</li>",
       sizex: 1,
       sizey: 1
     }
-    this.grid.add_widget(newElement.html, newElement.sizex, newElement.sizey);
+    return this.grid.add_widget(newElement.html, newElement.sizex, newElement.sizey);
   },
 
   // Delete an element from the grid
@@ -186,12 +188,14 @@ CSSGRIDGENERATOR.grid = {
       case "areas":
         var areas = [];
         this.grid.serialize().forEach(function (cell, index) {
+          var results = cell.name.match(/^[0-9]/)
+          var safe_cell_name = (results) ? "\\3" + results.pop() + ' ' + cell.name.substr(1) : cell.name;
           css += buildCSSRule({
-            'selector': "#area-" + (index + 1),
+            'selector': '#' + safe_cell_name,
             'properties': {
               // Note: Not all valid area names are valid <custom-ident>s
               // see:  http://www.w3.org/TR/css-grid-1/#valdef-grid-template-areas-string
-              'grid-area': (cell.name.match(/^[0-9]/)) ? "\\3"+cell.name : cell.name,
+              'grid-area': safe_cell_name,
             }
           });
 

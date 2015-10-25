@@ -2,5 +2,14 @@
   background-color: #3C87C7;
 }
 
+.popover-form {
+  padding: 9px 14px;
+}
 
+a {
+  color: pink;
+}
 
+.fa {
+  color: inherit;
+}

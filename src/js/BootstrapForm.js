@@ -14,10 +14,10 @@ var BootstrapForm = function (id, options) {
 BootstrapForm.prototype.form = function () {
   return this.formTag
     + this.formBody
-    + '<button type="submit" class="btn btn-default">' + this.submitText + '</button></form>';
+    + '<button type="submit" class="btn btn-success">' + this.submitText + '</button></form>';
 }
 
-BootstrapForm.prototype.addInput = function (id, type, options) {
+BootstrapForm.prototype.addInput = function (id, type, label, options) {
   options = options || {};
   try {
     if (typeof id === 'undefined' || typeof id !== 'string') {
@@ -27,9 +27,16 @@ BootstrapForm.prototype.addInput = function (id, type, options) {
       throw new Error("Invalid argument: id not defined");
     }
     this.formBody += '<div class="form-group">';
-    if (options.label && typeof options.label === 'string') {
-      this.formBody += '<label for="' + id + '">' + options.label + '</label>';
+
+    this.formBody += '<label for="' + id + '">' + label;
+    if (options.info && typeof options.info === 'string') {
+      this.formBody += ' <a href="#" data-toggle="tooltip" data-placement="right" title="' + options.info + '"><i class="fa fa-info-circle"></i></a>';
     }
+    if (options.help_link && typeof options.help_link === 'object') {
+      this.formBody += ' <a href="' + options.help_link.url || '#';
+      this.formBody += '" target="_blank" data-toggle="tooltip" data-placement="right" title="' + options.help_link.title + '"><i class="fa fa-question-circle"></i></a>';
+    }
+    this.formBody += '</label>';
 
     this.formBody += '<input id="' + id + '" name="' + id + '" type="' + type + '"';
     if (options.classes && typeof options.classes === 'string') {
