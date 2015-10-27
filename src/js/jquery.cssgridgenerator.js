@@ -135,19 +135,6 @@ CSSGRIDGENERATOR.grid = {
     return this.grid.add_widget(newElement.html, newElement.sizex, newElement.sizey);
   },
 
-  // Delete an element from the grid
-  deleteElement: function (el) {
-    try {
-      if (!(el instanceof jQuery)) {
-        throw new Error("Invalid argument: Element is not a jQuery object");
-      }
-      this.grid.remove_widget(el);
-    }
-    catch (e) {
-      console.log("Failed to delete GridElement. \n" + e.message);
-    }
-  },
-
   // Export a usable CSS representation of the current state of the grid
   exportCSS: function () {
     // Build a CSS rule set
@@ -213,7 +200,7 @@ CSSGRIDGENERATOR.grid = {
           }
         });
 
-        var gridTemplateColumns = this.gridTemplateColumns.join(' ');
+        var gridTemplateColumns = this.gridTemplateColumns.join(' '),
           gridTemplateRows = this.gridTemplateRows.join(' ');
 
         var gridTemplateAreas = "";
@@ -222,9 +209,9 @@ CSSGRIDGENERATOR.grid = {
         }
 
         var gridTemplateAreas = "";
-        for (y = 0; y < this.rows; y++) {
+        for (var y = 0; y < this.rows; y++) {
           gridTemplateAreas += (y > 0) ? " \"" : "\"";
-          for (x = 0; x < this.cols; x++) {
+          for (var x = 0; x < this.cols; x++) {
             gridTemplateAreas += (x > 0) ? " " : "";
             gridTemplateAreas += (typeof areas[y][x] !== 'undefined') ? areas[y][x] : '.';
           }

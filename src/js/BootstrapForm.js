@@ -1,62 +1,69 @@
+"use strict";
+
+/**
+ * Represents an HTML form in the style of Twitter Bootstrap
+ * @constructor
+ * @param {string} id - The form's id.
+ * @param {object} options - Optional configuration.
+ */
 var BootstrapForm = function (id, options) {
-  options = options || {};
-  if (options.classes && typeof options.classes === 'string') {
-    this.formTag = '<form id="' + id + '" name="' + id + '" class="' + classes + '">';
-  }
-  else {
-    this.formTag = '<form id="' + id + '" name="' + id + '">';
-  }
-  this.formBody = "";
-  this.submitText = (options.submitText && typeof options.submitText === 'string') ? options.submitText : "Submit";
-  this.bootstrapVersion = 3;
-};
-
-BootstrapForm.prototype.form = function () {
-  return this.formTag
-    + this.formBody
-    + '<button type="submit" class="btn btn-success">' + this.submitText + '</button></form>';
-}
-
-BootstrapForm.prototype.addInput = function (id, type, label, options) {
-  options = options || {};
+  this.options = options || {};
+  this.body = "";
   try {
-    if (typeof id === 'undefined' || typeof id !== 'string') {
-      throw new Error("Invalid argument: id not defined");
-    }
-    if (typeof type === 'undefined' || typeof type !== 'string') {
-      throw new Error("Invalid argument: id not defined");
-    }
-    this.formBody += '<div class="form-group">';
-
-    this.formBody += '<label for="' + id + '">' + label;
-    if (options.info && typeof options.info === 'string') {
-      this.formBody += ' <a href="#" data-toggle="tooltip" data-placement="right" title="' + options.info + '"><i class="fa fa-info-circle"></i></a>';
-    }
-    if (options.help_link && typeof options.help_link === 'object') {
-      this.formBody += ' <a href="' + options.help_link.url || '#';
-      this.formBody += '" target="_blank" data-toggle="tooltip" data-placement="right" title="' + options.help_link.title + '"><i class="fa fa-question-circle"></i></a>';
-    }
-    this.formBody += '</label>';
-
-    this.formBody += '<input id="' + id + '" name="' + id + '" type="' + type + '"';
-    if (options.classes && typeof options.classes === 'string') {
-      this.formBody += ' class="form-control ' + options.classes + '"';
+    if (typeof id !== "string" || id.length == 0) {
+      throw new Error("Invalid Argument: id must a non-empty string");
     }
     else {
-      this.formBody += ' class="form-control"';
+    this.id = id;
     }
-    if (options.placeholder && typeof options.placeholder === 'string') {
-      this.formBody += ' placeholder="' + options.placeholder + '"';
-    }
-    this.formBody += '>';
-
-    if (options.help && typeof options.help === 'string') {
-      this.formBody += '<p class="help-block">' + options.help + '</p>';
-    }
-
-    this.formBody += '</div>';
   }
   catch (e) {
-    console.log("Failed to add input. \n" + e.message);
+    console.log("Error: " + e.message);
   }
+};
+
+/**
+ * Returns HTML form
+ * @returns {string} The HTML form
+ */
+BootstrapForm.prototype.form = function () {
+  return '<form ' +
+    'id="' + this.id + '"' +
+    'name="' + this.id + '"' +
+    'class="' + (this.options.classes || "") + '"' +
+    '>' +
+    this.body +
+    '<button type="submit" class="btn btn-success">' + (this.options.submitText || "Submit") + '</button>' +
+    '</form>';
+}
+
+/**
+ * Append input to the form body
+ * @param {string} id - The input's id.
+ * @param {string} type - The input's type.
+ * @param {object} options - Optional configuration.
+ */
+BootstrapForm.prototype.addInput = function (id, type, options) {
+  var o = options || {};
+
+  // TODO: Improve naive type checking
+  this.body += '<div class="form-group">';
+  this.body += '<label for="' + id + '">' + (o.label || "");
+  if (o.info) {
+    this.body += ' <a href="#" data-toggle="tooltip" data-placement="right" title="' + o.info + '"><i class="fa fa-info-circle"></i></a>';
+  }
+  if (o.helpLink && o.helpLink.url) {
+    this.body += ' <a href="' + o.helpLink.url + '" target="_blank" data-toggle="tooltip" data-placement="right" title="' + (o.helpLink.title || "") + '"><i class="fa fa-question-circle"></i></a>';
+  }
+  this.body += '</label>';
+  this.body += '<input id="' + id + '" name="' + id + '" type="' + type + '"';
+  this.body += ' class="form-control ' + (o.classes || "") + '"';
+  if (o.placeholder) {
+    this.body += ' placeholder="' + o.placeholder + '"';
+  }
+  this.body += '>';
+  if (o.help) {
+    this.body += '<p class="help-block">' + o.help + '</p>';
+  }
+  this.body += '</div>';
 }

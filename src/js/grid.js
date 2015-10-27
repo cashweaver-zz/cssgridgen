@@ -1,60 +1,56 @@
 // DOM Ready
 $(function () {
-  SidebarMenuEffects();
+  "use strict";
 
+  var commonPopoverOptions = {
+    animation: "fade",
+    closeable: true,
+    cache: "false",
+    trigger: "manual",
+    backdrop: true,
+  }
+  var popoverFormPrefix = 'editCol-';
+  var popoverFormIdBase = 'editForm-';
 
-  function initPopovers() {
-
-    var prefix = 'editCol-';
-    var formIdBase = 'editForm-';
-
-    // Cells
-    // Enable tooltips for editing
-    $('[data-toggle="popover"].edit.edit-cell').webuiPopover({
+  function initEditCellPopover(selector) {
+    $(selector).webuiPopover($.extend({
       title: 'Edit Cell',
-      animation: 'fade',
-      closeable: true,
-      cache: false,
-      trigger: 'manual',
-      backdrop: true,
       content: function () {
         var cell = $(this).parent().data('row') + '-' + $(this).parent().data('col');
 
         // Build form
-        var form = new BootstrapForm(formIdBase + 'Cell-' + cell, {
+        var form = new BootstrapForm(popoverFormIdBase + 'Cell-' + cell, {
           submitText: 'Save'
         });
-        form.addInput(prefix+'name', 'text', 'Name', {
+        form.addInput(popoverFormPrefix+'name', 'text', {
+          label: "Name",
           info: "Valid value: \<custom-ident\> as defined by the W3 CSS Grid Specification.",
-          help_link: {
+          helpLink: {
             url: 'http://www.w3.org/TR/css-grid-1/#track-sizing',
             title: 'Open W3 Specification',
           },
         });
-        //return form.form() + '<button id="deleteCell-' + cell + '" class="btn btn-danger"><i class="fa fa-trash-o fa-lg"></i> Delete</button>';
+
         return form.form() + '<button id="deleteCell-' + cell + '" class="btn btn-danger">Delete</button>';
-      },
-    });
-    $('[data-toggle="popover"].edit.edit-cell').off('click').on('click', function () {
-      editObj = $(this);
+      }
+    }, commonPopoverOptions));
+    $(selector).off('click').on('click', function () {
+      var editObj = $(this);
       editObj.webuiPopover('show');
 
-      var cell = $(this).parent().data('row') + '-' + $(this).parent().data('col');
+      var cellId = $(this).parent().data('row') + '-' + $(this).parent().data('col');
       $('[data-toggle="tooltip"]').tooltip();
 
       // Set values
       CSSGRIDGENERATOR.grid.updateDimensions();
-      $("#" + formIdBase + 'Cell-' + cell + " input").each(function () {
-        var fieldName = $(this)[0].id.replace(prefix, '');
-        $(this).val(CSSGRIDGENERATOR.grid[fieldName]);
-      });
+      $("#" + popoverFormIdBase + "Cell-" + cellId + " input").val(editObj.parent().data('name'));
 
       var validateOptions = {
         rules: {},
         submitHandler: function (form, event) {
           var formData = $(form).serializeArray();
-          for (i = 0; i < formData.length; i++) {
-            var fieldName = formData[i].name.replace(prefix, '');
+          for (var i = 0; i < formData.length; i++) {
+            var fieldName = formData[i].name.replace(popoverFormPrefix, '');
             editObj.parent().data(fieldName, formData[i].value.trim());
           }
           // Update user-facing values
@@ -64,237 +60,128 @@ $(function () {
           editObj.webuiPopover('hide');
         },
       };
-      var areaNameValidRegex = /^\s*[0-9a-zA-Z-_]+\s*$/;
-      validateOptions.rules[prefix+"name"] = { pattern: areaNameValidRegex };
+      var rValidNameArea = /^\s*[0-9a-zA-Z-_]+\s*$/;
+      validateOptions.rules[popoverFormPrefix+"name"] = { pattern: rValidNameArea };
 
       $('.webui-popover-backdrop').off('click').on('click', function () {
         editObj.webuiPopover('hide');
       });
 
-      $("#deleteCell-" + cell).click(function () {
-        editObj.webuiPopover('hide');
+      $("#deleteCell-" + cellId).click(function () {
+        editObj.webuiPopover('destroy');
         CSSGRIDGENERATOR.grid.grid.remove_widget(editObj.parent(), function () {
-          // TODO: Undo delete:w
+          // TODO: Undo delete
         });
       });
 
       // Handle submission
-      $("#" + formIdBase + 'Cell-' + cell).off('submit').on('submit', function (e) {
+      //$("#" + popoverFormIdBase + 'Cell-' + cellId).off('submit').on('submit', function (e) {
+      $("#" + popoverFormIdBase + 'Cell-' + cellId).submit( function (e) {
         e.preventDefault();
       }).validate(validateOptions);
     });
-
-
-
-    // Columns
-    // Enable tooltips for editing
-    $('[data-toggle="popover"].edit.edit-col').webuiPopover({
-      title: 'Edit Column',
-      animation: 'fade',
-      closeable: true,
-      cache: false,
-      trigger: 'manual',
-      backdrop: true,
-      content: function () {
-        var col = $(this).parent().data('col');
-
-        // Build form
-        var form = new BootstrapForm(formIdBase + 'Col-' + col, {
-          submitText: 'Save'
-        });
-        form.addInput(prefix+"gridTemplateColumns-"+col, 'text', 'Width', {
-          info: "Valid values: \<length\>, \<percentage\>, \<flex\>, max-content, min-content, minmax(min, max), and auto as defined by the W3 CSS Grid Specification.",
-          help_link: {
-            url: 'http://www.w3.org/TR/css-grid-1/#track-sizing',
-            title: 'Open W3 Specification',
-          },
-        });
-        form.addInput(prefix+"gridColumnGap", 'text', 'Gap', {
-          help: "The horizontal space between columns. This is the same for all columns.",
-          info: "Valid value: \<length\> as defined by the W3 CSS Grid Specification.",
-          help_link: {
-            url: 'http://www.w3.org/TR/css-grid-1/#gutters',
-            title: 'Open W3 Specification',
-          },
-        });
-        return form.form();
-      },
-      //template: '<div class="webui-popover">' +
-      //'<div class="arrow"></div>' +
-      //'<div class="webui-popover-inner">' +
-      //'<a href="#" class="close">x</a>' +
-      //'<h3 class="webui-popover-title CUSTOM"></h3>' +
-        //'<div class="webui-popover-content"><i class="icon-refresh"></i> <p>&nbsp;</p></div>' +
-        //'</div>' +
-        //'</div>',
-    });
-    //$('[data-toggle="popover"].edit.edit-col').click(function () {
-    $('[data-toggle="popover"].edit.edit-col').off('click').on('click', function () {
-      editObj = $(this);
-      editObj.webuiPopover('show');
-
-      var col = $(this).parent().data('col');
-      $('[data-toggle="tooltip"]').tooltip();
-
-      // Set values
-      CSSGRIDGENERATOR.grid.updateDimensions();
-      $("#" + formIdBase + 'Col-' + col + " input").each(function () {
-        var fieldName = $(this)[0].id.replace(prefix, '');
-        if (fieldName.match(/Template/)) {
-          var index = fieldName.match(/[0-9]+/);
-          fieldName = fieldName.replace(/-[0-9]+/, '');
-          $(this).val(CSSGRIDGENERATOR.grid[fieldName][index.pop()]);
-        }
-        else if (fieldName.match(/Gap/)) {
-          $(this).val(CSSGRIDGENERATOR.grid[fieldName]);
-        }
-      });
-
-      // ref: http://www.shamasis.net/2009/07/regular-expression-to-validate-css-length-and-position-values/
-      var gapValidRegex = /^\s*(auto|0)$|^[+-]?[0-9]+.?([0-9]+)?(px|em|ex|%|in|cm|mm|pt|pc)$\s*/;
-      // Valid regex for gridTemplateRows and/or gridTemplateColumns fields
-      // ref: http://www.w3.org/TR/css-grid-1/#propdef-grid-template-columns
-      var gridTemplateValidRegex = /^\s*((auto|0)|[+-]?[0-9]+.?([0-9]+)?(px|em|ex|%|in|cm|mm|pt|pc)|max-content|min-content|[0-9]+fr|minmax\(\s*((auto|0)|[+-]?[0-9]+.?([0-9]+)?(px|em|ex|%|in|cm|mm|pt|pc)|max-content|min-content|[0-9]+fr)\s*,\s*((auto|0)|[+-]?[0-9]+.?([0-9]+)?(px|em|ex|%|in|cm|mm|pt|pc)|max-content|min-content|[0-9]+fr)\s*\))\s*$/;
-      var validateOptions = {
-        rules: {},
-        submitHandler: function (form, event) {
-          var formData = $(form).serializeArray();
-          for (i = 0; i < formData.length; i++) {
-            var fieldName = formData[i].name.replace(prefix, '');
-            if (fieldName.match(/Gap/)) {
-              CSSGRIDGENERATOR.grid[fieldName] = formData[i].value;
-            }
-            else if (fieldName.match(/Template/)) {
-              var index = fieldName.match(/[0-9]+/);
-              fieldName = fieldName.replace(/-[0-9]+/, '');
-              CSSGRIDGENERATOR.grid[fieldName][index.pop()] = formData[i].value;
-            }
-          }
-          $("#alerts").html('<div class="alert alert-success alert-dismissible fade in" role="alert"> <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><strong>Success!</strong> The grid has been updated successfully.</div>');
-          editObj.webuiPopover('hide');
-        },
-      };
-      validateOptions.rules[prefix+"gridTemplateColumns-"+col] = { pattern: gridTemplateValidRegex };
-      validateOptions.rules[prefix+"gridColumnGap"] = { pattern: gapValidRegex };
-
-      $('.webui-popover-backdrop').off('click').on('click', function () {
-        editObj.webuiPopover('hide');
-      });
-
-      // Handle submission
-      $("#" + formIdBase + 'Col-' + col).off('submit').on('submit', function (e) {
-      //$("#" + formIdBase + 'Col-' + col).submit( function (e) {
-        e.preventDefault();
-      }).validate(validateOptions);
-    });
-
-
-    // Rows
-    // Enable tooltips for editing
-    $('[data-toggle="popover"].edit.edit-row').webuiPopover({
-      title: 'Edit Row',
-      placement: 'right',
-      animation: 'fade',
-      closeable: true,
-      cache: false,
-      trigger: 'manual',
-      backdrop: true,
-      content: function () {
-        var row = $(this).parent().data('row');
-
-        // Build form
-        var form = new BootstrapForm(formIdBase + 'Row-' + row, {
-          submitText: 'Save'
-        });
-        form.addInput(prefix+"gridTemplateRows-"+row, 'text', 'Height', {
-          info: "Valid values: \<length\>, \<percentage\>, \<flex\>, max-content, min-content, minmax(min, max), and auto as defined by the W3 CSS Grid Specification.",
-          help_link: {
-            url: 'http://www.w3.org/TR/css-grid-1/#track-sizing',
-            title: 'Open W3 Specification',
-          },
-        });
-        form.addInput(prefix+"gridRowGap", 'text', 'Gap', {
-          help: "The vertical space between rows. This is the same for all rows.",
-          info: "Valid value: \<length\> as defined by the W3 CSS Grid Specification.",
-          help_link: {
-            url: 'http://www.w3.org/TR/css-grid-1/#gutters',
-            title: 'Open W3 Specification',
-          },
-        });
-        return form.form();
-      },
-      //template: '<div class="webui-popover">' +
-        //'<div class="arrow"></div>' +
-        //'<div class="webui-popover-inner">' +
-        //'<a href="#" class="close">x</a>' +
-        //'<h3 class="webui-popover-title CUSTOM"></h3>' +
-        //'<div class="webui-popover-content"><i class="icon-refresh"></i> <p>&nbsp;</p></div>' +
-        //'</div>' +
-        //'</div>',
-    });
-    //$('[data-toggle="popover"].edit.edit-row').click(function () {
-    $('[data-toggle="popover"].edit.edit-row').off('click').on('click', function () {
-      editObj = $(this);
-      editObj.webuiPopover('show');
-
-      var row = $(this).parent().data('row');
-      $('[data-toggle="tooltip"]').tooltip();
-
-      // Set values
-      CSSGRIDGENERATOR.grid.updateDimensions();
-      $("#" + formIdBase + 'Row-' + row + " input").each(function () {
-        var fieldName = $(this)[0].id.replace(prefix, '');
-        if (fieldName.match(/Template/)) {
-          var index = fieldName.match(/[0-9]+/);
-          fieldName = fieldName.replace(/-[0-9]+/, '');
-          $(this).val(CSSGRIDGENERATOR.grid[fieldName][index.pop()]);
-        }
-        else if (fieldName.match(/Gap/)) {
-          $(this).val(CSSGRIDGENERATOR.grid[fieldName]);
-        }
-      });
-
-      // ref: http://www.shamasis.net/2009/07/regular-expression-to-validate-css-length-and-position-values/
-      var gapValidRegex = /^\s*(auto|0)$|^[+-]?[0-9]+.?([0-9]+)?(px|em|ex|%|in|cm|mm|pt|pc)$\s*/;
-      // Valid regex for gridTemplateRows and/or gridTemplateColumns fields
-      // ref: http://www.w3.org/TR/css-grid-1/#propdef-grid-template-columns
-      var gridTemplateValidRegex = /^\s*((auto|0)|[+-]?[0-9]+.?([0-9]+)?(px|em|ex|%|in|cm|mm|pt|pc)|max-content|min-content|[0-9]+fr|minmax\(\s*((auto|0)|[+-]?[0-9]+.?([0-9]+)?(px|em|ex|%|in|cm|mm|pt|pc)|max-content|min-content|[0-9]+fr)\s*,\s*((auto|0)|[+-]?[0-9]+.?([0-9]+)?(px|em|ex|%|in|cm|mm|pt|pc)|max-content|min-content|[0-9]+fr)\s*\))\s*$/;
-      var validateOptions = {
-        rules: {},
-        submitHandler: function (form, event) {
-          var formData = $(form).serializeArray();
-          for (i = 0; i < formData.length; i++) {
-            var fieldName = formData[i].name.replace(prefix, '');
-            if (fieldName.match(/Gap/)) {
-              CSSGRIDGENERATOR.grid[fieldName] = formData[i].value;
-            }
-            else if (fieldName.match(/Template/)) {
-              var fieldName = formData[i].name.replace(prefix, '');
-              var index = fieldName.match(/[0-9]+/);
-              fieldName = fieldName.replace(/-[0-9]+/, '');
-              CSSGRIDGENERATOR.grid[fieldName][index.pop()] = formData[i].value;
-            }
-          }
-          $("#alerts").html('<div class="alert alert-success alert-dismissible fade in" role="alert"> <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><strong>Success!</strong> The grid has been updated successfully.</div>');
-          editObj.webuiPopover('hide');
-        },
-      };
-      validateOptions.rules[prefix+"gridTemplateRows-"+row] = { pattern: gridTemplateValidRegex };
-      validateOptions.rules[prefix+"gridRowGap"] = { pattern: gapValidRegex };
-
-      $('.webui-popover-backdrop').off('click').on('click', function () {
-        editObj.webuiPopover('hide');
-      });
-
-      // Handle submission
-      $("#" + formIdBase + 'Row-' + row).off('submit').on('submit', function (e) {
-      //$("#" + formIdBase + 'Row-' + row).submit( function (e) {
-        e.preventDefault();
-      }).validate(validateOptions);
-    });
-
   }
-  initPopovers();
+
+  function initEditColumnAndRowPopovers() {
+    // ref: http://www.shamasis.net/2009/07/regular-expression-to-validate-css-length-and-position-values/
+    var rValidGap = /^\s*(auto|0)$|^[+-]?[0-9]+.?([0-9]+)?(px|em|ex|%|in|cm|mm|pt|pc)$\s*/;
+    // Valid regex for gridTemplateRows and/or gridTemplateColumns fields
+    // ref: http://www.w3.org/TR/css-grid-1/#propdef-grid-template-columns
+    var rValidGridTemplate = /^\s*((auto|0)|[+-]?[0-9]+.?([0-9]+)?(px|em|ex|%|in|cm|mm|pt|pc)|max-content|min-content|[0-9]+fr|minmax\(\s*((auto|0)|[+-]?[0-9]+.?([0-9]+)?(px|em|ex|%|in|cm|mm|pt|pc)|max-content|min-content|[0-9]+fr)\s*,\s*((auto|0)|[+-]?[0-9]+.?([0-9]+)?(px|em|ex|%|in|cm|mm|pt|pc)|max-content|min-content|[0-9]+fr)\s*\))\s*$/;
+
+    var axes = [
+      { machine: "col", human: "Column" },
+      { machine: "row", human: "Row" }
+    ];
+
+    axes.forEach(function (axis) {
+      $('[data-toggle="popover"].edit.edit-' + axis.machine).webuiPopover($.extend({
+        title: "Edit " + axis.human,
+        content: function () {
+          var colId = $(this).parent().data(axis.machine);
+
+          // Build form
+          var form = new BootstrapForm(popoverFormIdBase + axis.human + "-" + colId, {
+            submitText: 'Save'
+          });
+          form.addInput(popoverFormPrefix + "gridTemplate" + axis.human + "-" + colId, 'text', {
+            label: "Width",
+            info: "Valid values: \<length\>, \<percentage\>, \<flex\>, max-content, min-content, minmax(min, max), and auto as defined by the W3 CSS Grid Specification.",
+            helpLink: {
+              url: 'http://www.w3.org/TR/css-grid-1/#track-sizing',
+              title: 'Open W3 Specification',
+            },
+          });
+          form.addInput(popoverFormPrefix + "grid" + axis.human + "Gap", 'text', {
+            label: "Gap",
+            help: "The horizontal space between columns. This is the same for all columns.",
+            info: "Valid value: \<length\> as defined by the W3 CSS Grid Specification.",
+            helpLink: {
+              url: 'http://www.w3.org/TR/css-grid-1/#gutters',
+              title: 'Open W3 Specification',
+            },
+          });
+          return form.form();
+        },
+      }, commonPopoverOptions));
+
+      $('[data-toggle="popover"].edit.edit-' + axis.machine).off('click').on('click', function () {
+        var editObj = $(this);
+        editObj.webuiPopover('show');
+
+        var id = $(this).parent().data(axis.machine);
+        $('[data-toggle="tooltip"]').tooltip();
+
+        // Set values
+        CSSGRIDGENERATOR.grid.updateDimensions();
+        $("#" + popoverFormIdBase + axis.human + "-" + id + " input").each(function () {
+          var fieldName = $(this)[0].id.replace(popoverFormPrefix, '');
+          if (fieldName.match(/Template/)) {
+            var index = fieldName.match(/[0-9]+/);
+            fieldName = fieldName.replace(/-[0-9]+/, '') + "s";
+            $(this).val(CSSGRIDGENERATOR.grid[fieldName][index.pop()]);
+          }
+          else if (fieldName.match(/Gap/)) {
+            $(this).val(CSSGRIDGENERATOR.grid[fieldName]);
+          }
+        });
+
+        var validateOptions = {
+          rules: {},
+          submitHandler: function (form, event) {
+            var formData = $(form).serializeArray();
+            for (var i = 0; i < formData.length; i++) {
+              var fieldName = formData[i].name.replace(popoverFormPrefix, '');
+              if (fieldName.match(/Gap/)) {
+                CSSGRIDGENERATOR.grid[fieldName] = formData[i].value;
+              }
+              else if (fieldName.match(/Template/)) {
+                var index = fieldName.match(/[0-9]+/);
+                fieldName = fieldName.replace(/-[0-9]+/, '');
+                fieldName = fieldName.replace(/-[0-9]+/, '') + "s";
+                CSSGRIDGENERATOR.grid[fieldName][index.pop()] = formData[i].value;
+              }
+            }
+            $("#alerts").html('<div class="alert alert-success alert-dismissible fade in" role="alert"> <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><strong>Success!</strong> The grid has been updated successfully.</div>');
+            editObj.webuiPopover('hide');
+          },
+        };
+        validateOptions.rules[popoverFormPrefix+"gridTemplate" + axis.human +"-"+id] = { pattern: rValidGridTemplate };
+        validateOptions.rules[popoverFormPrefix+"grid" + axis.human + "Gap"] = { pattern: rValidGap };
+
+        $('.webui-popover-backdrop').off('click').on('click', function () {
+          editObj.webuiPopover('hide');
+        });
+
+        // Handle submission
+        $("#" + popoverFormIdBase + axis.human + "-" + id).submit( function (e) {
+          e.preventDefault();
+        }).validate(validateOptions);
+      });
+    });
+  }
+  initEditColumnAndRowPopovers();
+  initEditCellPopover('[data-toggle="popover"].edit.edit-cell');
 
 
   // The grid is made of 12 cells and 24 gutters
@@ -379,12 +266,6 @@ $(function () {
     return this;
   };
 
-  // Handle editing and saving a grid element
-  $('#grid .edit').click(function () {
-    var gridEl = new GridElement($(this).parent());
-    gridEl.edit();
-  });
-
   $("#export").click(function () {
     CSSGRIDGENERATOR.grid.exportCSS();
   });
@@ -396,89 +277,7 @@ $(function () {
     console.log($(newCellSelector));
 
     // Apply callbacks to new elements
-    var prefix = 'editCol-';
-    var formIdBase = 'editForm-';
-
-    // Cells
-    // Enable tooltips for editing
-    console.log('first thing');
-    $(newCellSelector).webuiPopover({
-      title: 'Edit Cell',
-      animation: 'fade',
-      closeable: true,
-      cache: false,
-      trigger: 'manual',
-      backdrop: true,
-      content: function () {
-        var cell = $(this).parent().data('row') + '-' + $(this).parent().data('col');
-
-        // Build form
-        var form = new BootstrapForm(formIdBase + 'Cell-' + cell, {
-          submitText: 'Save'
-        });
-        form.addInput(prefix+'name', 'text', 'Name', {
-          info: "Valid value: \<custom-ident\> as defined by the W3 CSS Grid Specification.",
-          help_link: {
-            url: 'http://www.w3.org/TR/css-grid-1/#track-sizing',
-            title: 'Open W3 Specification',
-          },
-        });
-        //return form.form() + '<button id="deleteCell-' + cell + '" class="btn btn-danger"><i class="fa fa-trash-o fa-lg"></i> Delete</button>';
-        return form.form() + '<button id="deleteCell-' + cell + '" class="btn btn-danger">Delete</button>';
-      },
-    });
-    console.log('second thing');
-    $(newCellSelector).off('click').on('click', function () {
-      console.log('clicked');
-      editObj = $(this);
-      editObj.webuiPopover('show');
-
-      var cell = $(this).parent().data('row') + '-' + $(this).parent().data('col');
-      $('[data-toggle="tooltip"]').tooltip();
-
-      // Set values
-      CSSGRIDGENERATOR.grid.updateDimensions();
-      $("#" + formIdBase + 'Cell-' + cell + " input").each(function () {
-        var fieldName = $(this)[0].id.replace(prefix, '');
-        $(this).val(CSSGRIDGENERATOR.grid[fieldName]);
-      });
-
-      var validateOptions = {
-        rules: {},
-        submitHandler: function (form, event) {
-          var formData = $(form).serializeArray();
-          for (i = 0; i < formData.length; i++) {
-            var fieldName = formData[i].name.replace(prefix, '');
-            editObj.parent().data(fieldName, formData[i].value.trim());
-          }
-          // Update user-facing values
-          editObj.parent().children('.name').html(editObj.parent().data('name'));
-
-          $("#alerts").html('<div class="alert alert-success alert-dismissible fade in" role="alert"> <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><strong>Success!</strong> The grid has been updated successfully.</div>');
-          editObj.webuiPopover('hide');
-        },
-      };
-      var areaNameValidRegex = /^\s*[0-9a-zA-Z-_]+\s*$/;
-      validateOptions.rules[prefix+"name"] = { pattern: areaNameValidRegex };
-
-      $('.webui-popover-backdrop').off('click').on('click', function () {
-        editObj.webuiPopover('hide');
-      });
-
-      console.log(cell);
-      $("#deleteCell-" + cell).click(function () {
-        editObj.webuiPopover('hide');
-        CSSGRIDGENERATOR.grid.grid.remove_widget(editObj.parent(), function () {
-          // TODO: Undo delete:w
-        });
-      });
-
-      // Handle submission
-      $("#" + formIdBase + 'Cell-' + cell).off('submit').on('submit', function (e) {
-        e.preventDefault();
-      }).validate(validateOptions);
-    });
-    console.log("end add");
+    initEditCellPopover(newCellSelector);
   });
 
   $("#editGrid").click(function () {
