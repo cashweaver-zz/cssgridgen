@@ -1,4 +1,11 @@
 # CSS Grid Generator
-A grid builder to build [CSS Grid Layout Module](http://www.w3.org/TR/css-grid-1/) code.
 
-[Build your own grid!](http://www.cssgridgenerator.com)
+> To its core, a grid layout in CSS is a set of vertical and horizontal lines that define cells that content can be arbitrarily positioned on.
+>
+> [Patrick Brosse](https://twitter.com/patrickbrosset) ([full article](https://medium.com/@patrickbrosset/css-grid-layout-6c9cba6e8a5a))
+
+Get the nitty-gritty from the [CSS Grid Layout specification](http://www.w3.org/TR/css-grid-1/).
+
+## Can I use it?
+
+Check [caniuse](http://caniuse.com/#feat=css-grid) for browser support.
