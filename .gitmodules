@@ -1,0 +1,6 @@
+[submodule "lib/gridster.js"]
+	path = lib/gridster.js
+	url = https://github.com/ducksboard/gridster.js
+[submodule "lib/webui-popover"]
+	path = lib/webui-popover
+	url = https://github.com/sandywalker/webui-popover
