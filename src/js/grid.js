@@ -99,10 +99,11 @@ $(function () {
 
 
   /**
-   * TODO
+   * Attach a popover for editing a cell to the given selector.
    * @method
+   * @param {string} selector - jQuery selector specifying what to attach the popover to
    */
-  CSSGRIDGENERATOR.grid.initEditCellPopover = function (selector) {
+  CSSGRIDGENERATOR.grid.attachEditCellPopover = function (selector) {
     console.log(selector);
     $(selector).webuiPopover($.extend({
       title: 'Edit Cell',
@@ -129,10 +130,11 @@ $(function () {
 
 
   /**
-   * TODO
+   * Attach a popover for editing a column to the given selector.
    * @method
+   * @param {string} selector - jQuery selector specifying what to attach the popover to
    */
-  CSSGRIDGENERATOR.grid.initEditColPopover = function (selector) {
+  CSSGRIDGENERATOR.grid.attachEditColPopover = function (selector) {
     $(selector).webuiPopover($.extend({
       title: "Edit Column",
       content: function () {
@@ -166,10 +168,11 @@ $(function () {
 
 
   /**
-   * TODO
+   * Attach a popover for editing a row to the given selector.
    * @method
+   * @param {string} selector - jQuery selector specifying what to attach the popover to
    */
-  CSSGRIDGENERATOR.grid.initEditRowPopover = function (selector) {
+  CSSGRIDGENERATOR.grid.attachEditRowPopover = function (selector) {
     $(selector).webuiPopover($.extend({
       title: "Edit Row",
       content: function () {
@@ -202,13 +205,13 @@ $(function () {
   };
 
   $("#index-col li .edit").each(function (index, el) {
-    CSSGRIDGENERATOR.grid.initEditColPopover(el);
+    CSSGRIDGENERATOR.grid.attachEditColPopover(el);
   });
   $("#index-row li .edit").each(function (index, el) {
-    CSSGRIDGENERATOR.grid.initEditRowPopover(el);
+    CSSGRIDGENERATOR.grid.attachEditRowPopover(el);
   });
   $("#grid li .edit").each(function (index, el) {
-    CSSGRIDGENERATOR.grid.initEditCellPopover(el);
+    CSSGRIDGENERATOR.grid.attachEditCellPopover(el);
   });
 
 
@@ -220,7 +223,7 @@ $(function () {
     var $newCell = $(newCell);
     var sNewCell = 'li[data-row="' + $newCell.data('row') + '"][data-col="' + $newCell.data('col') + '"] .edit';
     console.log(sNewCell);
-    CSSGRIDGENERATOR.grid.initEditCellPopover(sNewCell);
+    CSSGRIDGENERATOR.grid.attachEditCellPopover(sNewCell);
   });
 
 
@@ -235,8 +238,9 @@ $(function () {
 
 
   /**
-   * TODO
+   * Invoke attached edit cell popover for given selector.
    * @method
+   * @param {string} selector - jQuery selector specifying what to attach the popover to
    */
   CSSGRIDGENERATOR.grid.editCell = function (selector) {
     console.log(selector);
@@ -295,8 +299,9 @@ $(function () {
   var rValidGridTemplate = /^\s*((auto|0)|[+-]?[0-9]+.?([0-9]+)?(px|em|ex|%|in|cm|mm|pt|pc)|max-content|min-content|[0-9]+fr|minmax\(\s*((auto|0)|[+-]?[0-9]+.?([0-9]+)?(px|em|ex|%|in|cm|mm|pt|pc)|max-content|min-content|[0-9]+fr)\s*,\s*((auto|0)|[+-]?[0-9]+.?([0-9]+)?(px|em|ex|%|in|cm|mm|pt|pc)|max-content|min-content|[0-9]+fr)\s*\))\s*$/;
 
   /**
-   * TODO
+   * Invoke attached edit column popover for given selector.
    * @method
+   * @param {string} selector - jQuery selector specifying what to attach the popover to
    */
   CSSGRIDGENERATOR.grid.editCol = function (selector) {
     var editObj = $(selector);
@@ -354,8 +359,9 @@ $(function () {
 
 
   /**
-   * TODO
+   * Invoke attached edit row popover for given selector.
    * @method
+   * @param {string} selector - jQuery selector specifying what to attach the popover to
    */
   CSSGRIDGENERATOR.grid.editRow = function (selector) {
     var editObj = $(selector);

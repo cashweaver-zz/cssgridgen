@@ -50,10 +50,14 @@ CSSGRIDGENERATOR.grid = {
   /**
    * Add an element to the grid
    * @method
-   * @returns TODO
+   * @returns {object} jQuery object representing the newly created cell.
    */
   addCell: function () {
-    return this.grid.add_widget(this.newCellTemplate, 1, 1);
+    var t = this.grid.add_widget(this.newCellTemplate, 1, 1);
+    console.log(t);
+    console.log(typeof t);
+    console.log((t instanceof jQuery) ? "jquer" : "none");
+    return t;
   },
 
 
