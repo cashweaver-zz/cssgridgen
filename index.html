@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
     <meta name="description" content="CSS Grid Generator">
-    <meta name="author" content="cbweaver">
+    <meta name="author" content="Cash Weaver">
     <link rel="icon" href="/favicon.ico">
 
     <title>CSS Grid Generator</title>
@@ -33,15 +33,10 @@
     <div class="container">
       <div class="row">
         <div class="col-xs-12">
-          <h1>CSS Grid Gen!</h1>
-          <p class="lead">This is some <a href="#" data-toggle="popover">introductory</a> text.</p>
+          <h1>CSS Grid Generator</h1>
           <div id="alerts"></div>
-          <button class="st-trigger-effect" data-effect="st-effect-3-left">Push from Left</button>
-          <button class="st-trigger-effect" data-effect="st-effect-3-right">Slide over from Right</button>
-          <br>
           <button id="addCell">Add Cell</button>
-          <button id="export">Export</button>
-          <button id="editGrid" class="st-trigger-effect" data-effect="st-effect-3-right">Edit Grid</button>
+          <button id="export" data-toggle="model" data-target="#exportModal">Export</button>
         </div>
       </div>
     </div>
@@ -49,34 +44,34 @@
 
     <div class="index-col-wrapper clearfix">
       <ul id="index-col" class="index index-col list-unstyled">
-        <li data-col="0">1 <button type="button" data-toggle="popover" class="btn btn-default edit edit-col"><span class="fa fa-lg fa-pencil"></span> <span class="sr-only">Edit</span></button></li>
-        <li style="display: none;" data-col="1">2 <button type="button" data-toggle="popover" class="btn btn-default edit edit-col"><span class="fa fa-lg fa-pencil"></span> <span class="sr-only">Edit</span></button></li>
-        <li style="display: none;" data-col="2">3 <button type="button" data-toggle="popover" class="btn btn-default edit edit-col"><span class="fa fa-lg fa-pencil"></span> <span class="sr-only">Edit</span></button></li>
-        <li style="display: none;" data-col="3">4 <button type="button" data-toggle="popover" class="btn btn-default edit edit-col"><span class="fa fa-lg fa-pencil"></span> <span class="sr-only">Edit</span></button></li>
-        <li style="display: none;" data-col="4">5 <button type="button" data-toggle="popover" class="btn btn-default edit edit-col"><span class="fa fa-lg fa-pencil"></span> <span class="sr-only">Edit</span></button></li>
-        <li style="display: none;" data-col="5">6 <button type="button" data-toggle="popover" class="btn btn-default edit edit-col"><span class="fa fa-lg fa-pencil"></span> <span class="sr-only">Edit</span></button></li>
-        <li style="display: none;" data-col="6">7 <button type="button" data-toggle="popover" class="btn btn-default edit edit-col"><span class="fa fa-lg fa-pencil"></span> <span class="sr-only">Edit</span></button></li>
-        <li style="display: none;" data-col="7">8 <button type="button" data-toggle="popover" class="btn btn-default edit edit-col"><span class="fa fa-lg fa-pencil"></span> <span class="sr-only">Edit</span></button></li>
-        <li style="display: none;" data-col="8">9 <button type="button" data-toggle="popover" class="btn btn-default edit edit-col"><span class="fa fa-lg fa-pencil"></span> <span class="sr-only">Edit</span></button></li>
-        <li style="display: none;" data-col="9">10 <button type="button" data-toggle="popover" class="btn btn-default edit edit-col"><span class="fa fa-lg fa-pencil"></span> <span class="sr-only">Edit</span></button></li>
-        <li style="display: none;" data-col="10">11 <button type="button" data-toggle="popover" class="btn btn-default edit edit-col"><span class="fa fa-lg fa-pencil"></span> <span class="sr-only">Edit</span></button></li>
-        <li style="display: none;" data-col="11">12 <button type="button" data-toggle="popover" class="btn btn-default edit edit-col"><span class="fa fa-lg fa-pencil"></span> <span class="sr-only">Edit</span></button></li>
+        <li data-col="0" data-axis="col">1 <button type="button" data-toggle="popover" class="btn btn-default edit edit-col"><span class="fa fa-lg fa-pencil"></span> <span class="sr-only">Edit</span></button></li>
+        <li style="display: none;" data-col="1" data-axis="col">2 <button type="button" data-toggle="popover" class="btn btn-default edit edit-col"><span class="fa fa-lg fa-pencil"></span> <span class="sr-only">Edit</span></button></li>
+        <li style="display: none;" data-col="2" data-axis="col">3 <button type="button" data-toggle="popover" class="btn btn-default edit edit-col"><span class="fa fa-lg fa-pencil"></span> <span class="sr-only">Edit</span></button></li>
+        <li style="display: none;" data-col="3" data-axis="col">4 <button type="button" data-toggle="popover" class="btn btn-default edit edit-col"><span class="fa fa-lg fa-pencil"></span> <span class="sr-only">Edit</span></button></li>
+        <li style="display: none;" data-col="4" data-axis="col">5 <button type="button" data-toggle="popover" class="btn btn-default edit edit-col"><span class="fa fa-lg fa-pencil"></span> <span class="sr-only">Edit</span></button></li>
+        <li style="display: none;" data-col="5" data-axis="col">6 <button type="button" data-toggle="popover" class="btn btn-default edit edit-col"><span class="fa fa-lg fa-pencil"></span> <span class="sr-only">Edit</span></button></li>
+        <li style="display: none;" data-col="6" data-axis="col">7 <button type="button" data-toggle="popover" class="btn btn-default edit edit-col"><span class="fa fa-lg fa-pencil"></span> <span class="sr-only">Edit</span></button></li>
+        <li style="display: none;" data-col="7" data-axis="col">8 <button type="button" data-toggle="popover" class="btn btn-default edit edit-col"><span class="fa fa-lg fa-pencil"></span> <span class="sr-only">Edit</span></button></li>
+        <li style="display: none;" data-col="8" data-axis="col">9 <button type="button" data-toggle="popover" class="btn btn-default edit edit-col"><span class="fa fa-lg fa-pencil"></span> <span class="sr-only">Edit</span></button></li>
+        <li style="display: none;" data-col="9" data-axis="col">10 <button type="button" data-toggle="popover" class="btn btn-default edit edit-col"><span class="fa fa-lg fa-pencil"></span> <span class="sr-only">Edit</span></button></li>
+        <li style="display: none;" data-col="10" data-axis="col">11 <button type="button" data-toggle="popover" class="btn btn-default edit edit-col"><span class="fa fa-lg fa-pencil"></span> <span class="sr-only">Edit</span></button></li>
+        <li style="display: none;" data-col="11" data-axis="col">12 <button type="button" data-toggle="popover" class="btn btn-default edit edit-col"><span class="fa fa-lg fa-pencil"></span> <span class="sr-only">Edit</span></button></li>
       </ul>
     </div>
     <div class="gridster clearfix">
       <ul id="index-row" class="index index-row list-unstyled">
-        <li data-row="0">1 <button type="button" data-toggle="popover" class="btn btn-default edit edit-row"><span class="fa fa-lg fa-pencil"></span> <span class="sr-only">Edit</span></button></li>
-        <li style="display: none;" data-row="1">2 <button type="button" data-toggle="popover" class="btn btn-default edit edit-row"><span class="fa fa-lg fa-pencil"></span> <span class="sr-only">Edit</span></button></li>
-        <li style="display: none;" data-row="2">3 <button type="button" data-toggle="popover" class="btn btn-default edit edit-row"><span class="fa fa-lg fa-pencil"></span> <span class="sr-only">Edit</span></button></li>
-        <li style="display: none;" data-row="3">4 <button type="button" data-toggle="popover" class="btn btn-default edit edit-row"><span class="fa fa-lg fa-pencil"></span> <span class="sr-only">Edit</span></button></li>
-        <li style="display: none;" data-row="4">5 <button type="button" data-toggle="popover" class="btn btn-default edit edit-row"><span class="fa fa-lg fa-pencil"></span> <span class="sr-only">Edit</span></button></li>
-        <li style="display: none;" data-row="5">6 <button type="button" data-toggle="popover" class="btn btn-default edit edit-row"><span class="fa fa-lg fa-pencil"></span> <span class="sr-only">Edit</span></button></li>
-        <li style="display: none;" data-row="6">7 <button type="button" data-toggle="popover" class="btn btn-default edit edit-row"><span class="fa fa-lg fa-pencil"></span> <span class="sr-only">Edit</span></button></li>
-        <li style="display: none;" data-row="7">8 <button type="button" data-toggle="popover" class="btn btn-default edit edit-row"><span class="fa fa-lg fa-pencil"></span> <span class="sr-only">Edit</span></button></li>
-        <li style="display: none;" data-row="8">9 <button type="button" data-toggle="popover" class="btn btn-default edit edit-row"><span class="fa fa-lg fa-pencil"></span> <span class="sr-only">Edit</span></button></li>
-        <li style="display: none;" data-row="9">10 <button type="button" data-toggle="popover" class="btn btn-default edit edit-row"><span class="fa fa-lg fa-pencil"></span> <span class="sr-only">Edit</span></button></li>
-        <li style="display: none;" data-row="10">11 <button type="button" data-toggle="popover" class="btn btn-default edit edit-row"><span class="fa fa-lg fa-pencil"></span> <span class="sr-only">Edit</span></button></li>
-        <li style="display: none;" data-row="11">12 <button type="button" data-toggle="popover" class="btn btn-default edit edit-row"><span class="fa fa-lg fa-pencil"></span> <span class="sr-only">Edit</span></button></li>
+        <li data-row="0" data-axis="row">1 <button type="button" data-toggle="popover" class="btn btn-default edit edit-row"><span class="fa fa-lg fa-pencil"></span> <span class="sr-only">Edit</span></button></li>
+        <li style="display: none;" data-row="1" data-axis="row">2 <button type="button" data-toggle="popover" class="btn btn-default edit edit-row"><span class="fa fa-lg fa-pencil"></span> <span class="sr-only">Edit</span></button></li>
+        <li style="display: none;" data-row="2" data-axis="row">3 <button type="button" data-toggle="popover" class="btn btn-default edit edit-row"><span class="fa fa-lg fa-pencil"></span> <span class="sr-only">Edit</span></button></li>
+        <li style="display: none;" data-row="3" data-axis="row">4 <button type="button" data-toggle="popover" class="btn btn-default edit edit-row"><span class="fa fa-lg fa-pencil"></span> <span class="sr-only">Edit</span></button></li>
+        <li style="display: none;" data-row="4" data-axis="row">5 <button type="button" data-toggle="popover" class="btn btn-default edit edit-row"><span class="fa fa-lg fa-pencil"></span> <span class="sr-only">Edit</span></button></li>
+        <li style="display: none;" data-row="5" data-axis="row">6 <button type="button" data-toggle="popover" class="btn btn-default edit edit-row"><span class="fa fa-lg fa-pencil"></span> <span class="sr-only">Edit</span></button></li>
+        <li style="display: none;" data-row="6" data-axis="row">7 <button type="button" data-toggle="popover" class="btn btn-default edit edit-row"><span class="fa fa-lg fa-pencil"></span> <span class="sr-only">Edit</span></button></li>
+        <li style="display: none;" data-row="7" data-axis="row">8 <button type="button" data-toggle="popover" class="btn btn-default edit edit-row"><span class="fa fa-lg fa-pencil"></span> <span class="sr-only">Edit</span></button></li>
+        <li style="display: none;" data-row="8" data-axis="row">9 <button type="button" data-toggle="popover" class="btn btn-default edit edit-row"><span class="fa fa-lg fa-pencil"></span> <span class="sr-only">Edit</span></button></li>
+        <li style="display: none;" data-row="9" data-axis="row">10 <button type="button" data-toggle="popover" class="btn btn-default edit edit-row"><span class="fa fa-lg fa-pencil"></span> <span class="sr-only">Edit</span></button></li>
+        <li style="display: none;" data-row="10" data-axis="row">11 <button type="button" data-toggle="popover" class="btn btn-default edit edit-row"><span class="fa fa-lg fa-pencil"></span> <span class="sr-only">Edit</span></button></li>
+        <li style="display: none;" data-row="11" data-axis="row">12 <button type="button" data-toggle="popover" class="btn btn-default edit edit-row"><span class="fa fa-lg fa-pencil"></span> <span class="sr-only">Edit</span></button></li>
       </ul>
       <ul id="grid" class="grid">
         <li data-row="1" data-col="1" data-sizex="1" data-sizey="1" data-name="">
@@ -86,17 +81,21 @@
       </ul>
     </div>
 
-    <div class="container">
-      <div class="row">
-        <div class="col-xs-12">
-          <hr>
-
-          <pre id="exportResult">
-            <p>Export results appear here.</p>
+    <div id="exportModal" class="modal fade">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title">Exported CSS</h4>
+          </div>
+          <pre class="modal-body">
           </pre>
-        </div>
-      </div>
-    </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          </div>
+        </div><!-- /.modal-content -->
+      </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
 
     <!-- JS Libraries -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>

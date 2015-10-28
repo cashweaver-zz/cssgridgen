@@ -13,3 +13,10 @@ a {
 .fa {
   color: inherit;
 }
+
+pre {
+  &.modal-body {
+    margin: 15px;
+    max-height:50vh;
+  }
+}
