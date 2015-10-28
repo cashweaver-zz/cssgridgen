@@ -10,7 +10,7 @@ CSSGRIDGENERATOR.grid = {
   gridTemplateColumns: ['auto'],
   gridColumnGap: "0",
   gridRowGap: "0",
-  newCellTemplate: '<li data-name=""><button type="button" data-toggle="popover" class="btn btn-default edit edit-cell"><span class="fa fa-lg fa-pencil"></span> <span class="sr-only">Edit</span></button><span class=""name""></span></li>',
+  newCellTemplate: '<li data-row="1" data-col="1" data-sizex="1" data-sizey="1" data-name=""><div class="cell-inner"><span class="name"></span><button type="button" data-toggle="popover" class="btn btn-default edit edit-cell"><span class="fa fa-lg fa-pencil"></span> <span class="sr-only">Edit</span></button></div></li>',
   cols: 1,
   rows: 1,
 

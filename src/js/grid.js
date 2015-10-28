@@ -4,12 +4,14 @@ $(function () {
 
   // The grid is made of 12 cells and 24 gutters
   var scrollbar_width = 17;
-  var index_row_padding = 10;
-  var viewport = $('body').innerWidth() - scrollbar_width - index_row_padding;
+  var index_row_padding = 50;
+  var viewport = $('body').innerWidth() - index_row_padding;
+  console.log(viewport);
   var gutter_width = 15;
   var num_cells = 12;
   viewport -= gutter_width * 24;
   var cell_width = Math.floor(viewport / num_cells);
+  console.log(cell_width);
 
   // Inject styles for indexes (column and row)
   var index_col_style =
@@ -63,7 +65,7 @@ $(function () {
     cols = Math.min(max_cols, Math.max(cols, this.options.min_cols));
 
     $('#index-col li').each(function (index) {
-      $(this).css('display', (index < cols) ? 'block' : 'none');
+      $(this).css('display', (index < cols) ? 'flex' : 'none');
     });
 
     return this;
@@ -79,7 +81,7 @@ $(function () {
     var num_rows = height / cell_height_with_gutters;
 
     $('#index-row li').each(function (index) {
-      $(this).css('display', (index < num_rows) ? 'block' : 'none');
+      $(this).css('display', (index < num_rows) ? 'flex' : 'none');
     });
 
     return this;
@@ -108,11 +110,12 @@ $(function () {
     $(selector).webuiPopover($.extend({
       title: 'Edit Cell',
       content: function () {
-        var cell = $(this).parent().data('row') + '-' + $(this).parent().data('col');
+        var cell = $(this).closest("li").data('row') + '-' + $(this).closest("li").data('col');
 
         // Build form
         var form = new BootstrapForm(popoverFormIdBase + 'Cell-' + cell, {
-          submitText: 'Save'
+          classes: "editCell",
+          submitText: 'Save',
         });
         form.addInput(popoverFormPrefix+'name', 'text', {
           label: "Name",
@@ -138,11 +141,12 @@ $(function () {
     $(selector).webuiPopover($.extend({
       title: "Edit Column",
       content: function () {
-        var colId = $(this).parent().data('col');
+        var colId = $(this).closest("li").data('col');
 
         // Build form
         var form = new BootstrapForm(popoverFormIdBase + "Column-" + colId, {
-          submitText: 'Save'
+          classes: "editCol",
+          submitText: 'Save',
         });
         form.addInput(popoverFormPrefix + "gridTemplateColumn-" + colId, 'text', {
           label: "Width",
@@ -176,11 +180,12 @@ $(function () {
     $(selector).webuiPopover($.extend({
       title: "Edit Row",
       content: function () {
-        var rowId = $(this).parent().data('row');
+        var rowId = $(this).closest("li").data('row');
 
         // Build form
         var form = new BootstrapForm(popoverFormIdBase + "Row-" + rowId, {
-          submitText: 'Save'
+          classes: "editRow",
+          submitText: 'Save',
         });
         form.addInput(popoverFormPrefix + "gridTemplateRow-" + rowId, 'text', {
           label: "Width",
@@ -248,12 +253,12 @@ $(function () {
     var editObj = $(selector);
     editObj.webuiPopover('show');
 
-    var cellId = $(selector).parent().data('row') + '-' + $(selector).parent().data('col');
+    var cellId = $(selector).closest("li").data('row') + '-' + $(selector).closest("li").data('col');
     $('[data-toggle="tooltip"]').tooltip();
 
     // Set values
     CSSGRIDGENERATOR.grid.updateDimensions();
-    $("#" + popoverFormIdBase + "Cell-" + cellId + " input").val(editObj.parent().data('name'));
+    $("#" + popoverFormIdBase + "Cell-" + cellId + " input").val(editObj.closest("li").data('name'));
 
     var validateOptions = {
       rules: {},
@@ -261,10 +266,10 @@ $(function () {
         var formData = $(form).serializeArray();
         for (var i = 0; i < formData.length; i++) {
           var fieldName = formData[i].name.replace(popoverFormPrefix, '');
-          editObj.parent().data(fieldName, formData[i].value.trim());
+          editObj.closest("li").data(fieldName, formData[i].value.trim());
         }
         // Update user-facing values
-        editObj.parent().children('.name').html(editObj.parent().data('name'));
+        editObj.parent().children('.name').html(editObj.closest("li").data('name'));
 
         $("#alerts").html('<div class="alert alert-success alert-dismissible fade in" role="alert"> <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><strong>Success!</strong> The grid has been updated successfully.</div>');
         editObj.webuiPopover('hide');
@@ -279,7 +284,7 @@ $(function () {
 
     $("#deleteCell-" + cellId).click(function () {
       editObj.webuiPopover('destroy');
-      CSSGRIDGENERATOR.grid.grid.remove_widget(editObj.parent(), function () {
+      CSSGRIDGENERATOR.grid.grid.remove_widget(editObj.closest("li"), function () {
         // TODO: Undo delete
       });
     });
@@ -307,7 +312,7 @@ $(function () {
     var editObj = $(selector);
     editObj.webuiPopover("show");
 
-    var id = $(selector).parent().data("col");
+    var id = $(selector).closest("li").data("col");
     $('[data-toggle="tooltip"]').tooltip();
 
     // Set values
@@ -367,7 +372,7 @@ $(function () {
     var editObj = $(selector);
     editObj.webuiPopover("show");
 
-    var id = $(selector).parent().data("row");
+    var id = $(selector).closest("li").data("row");
     $('[data-toggle="tooltip"]').tooltip();
 
     // Set values
