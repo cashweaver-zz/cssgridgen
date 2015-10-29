@@ -8,7 +8,7 @@ var gulp = require('gulp'),
     require('cssnext'),
     require('gulp-cssnano'),
     require('precss'),
-    require('autoprefixer-core')({ browsers: ['last 2 versions', '> 2%'] }),
+    require('autoprefixer')({ browsers: ['last 2 versions', '> 2%'] }),
   ];
 
 gulp.task('css', function() {
